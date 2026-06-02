@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Galería de Renders - Bouclé de Payró</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Playfair+Display:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#314c45",
+                        "on-error": "#ffffff",
+                        "warm-gold": "#a68b59",
+                        "secondary": "#48645c",
+                        "secondary-container": "#c8e6dd",
+                        "primary-fixed": "#ffdea5",
+                        "surface-bright": "#f9f9f9",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#cbe9e0",
+                        "cream": "#e8e8e8",
+                        "surface-tint": "#725b2e",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#e4e2e1",
+                        "on-primary-fixed-variant": "#584318",
+                        "primary-container": "#8a7141",
+                        "on-secondary-container": "#4d6861",
+                        "inverse-surface": "#2f3131",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "secondary-fixed-dim": "#afcdc4",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-container-low": "#f4f3f3",
+                        "on-primary-container": "#fffbff",
+                        "on-tertiary-container": "#fffcfb",
+                        "tertiary-container": "#757474",
+                        "primary-fixed-dim": "#e1c28c",
+                        "on-surface-variant": "#4d463b",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#6f592c",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container": "#eeeeee",
+                        "outline": "#7f7669",
+                        "on-surface": "#1a1c1c",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "on-primary-fixed": "#261900",
+                        "pure-white": "#ffffff",
+                        "inverse-primary": "#e1c28c",
+                        "surface": "#f9f9f9",
+                        "deep-teal": "#3b564f",
+                        "surface-dim": "#dadada",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1a1c1c",
+                        "background": "#f9f9f9",
+                        "tertiary": "#5c5c5c",
+                        "on-secondary-fixed": "#04201a",
+                        "outline-variant": "#d0c5b6",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "on-primary": "#ffffff",
+                        "charcoal": "#2b2b2b",
+                        "surface-variant": "#e2e2e2",
+                        "inverse-on-surface": "#f1f1f1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "24px",
+                        "stack-lg": "48px",
+                        "section-py-mobile": "64px",
+                        "container-px": "32px",
+                        "stack-sm": "12px",
+                        "section-py-desktop": "120px",
+                        "gutter-grid": "24px"
+                    },
+                    "fontFamily": {
+                        "display-hero": ["PP Museum Light", "Playfair Display", "serif"],
+                        "display-hero-mobile": ["PP Museum Light", "Playfair Display", "serif"],
+                        "headline-lg": ["PP Museum Light", "Playfair Display", "serif"],
+                        "label-technical": ["PP Fraktion Mono", "JetBrains Mono", "monospace"],
+                        "body-ui": ["PP Neue Montreal Book", "Inter", "system-ui", "sans-serif"],
+                        "label-allcaps": ["PP Neue Montreal Book", "Inter", "sans-serif"],
+                        "body-reading": ["PP Neue Montreal Book", "Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "label-technical": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "display-hero": ["80px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-ui": ["15px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-hero-mobile": ["44px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-allcaps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.2em", "fontWeight": "600" }],
+                        "body-reading": ["17px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        @font-face {
+            font-family: 'PP Museum Light';
+            src: url('https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1d175bff82912d65c97faf.otf') format('opentype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'PP Neue Montreal Book';
+            src: url('https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1d175d5a3e6e89b617e151.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'PP Fraktion Mono';
+            src: url('https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1d175bff82912d65c97f9d.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        :root {
+            --font-headings: 'PP Museum Light', 'Playfair Display', serif;
+            --font-body: 'PP Neue Montreal Book', 'Inter', system-ui, sans-serif;
+            --font-mono: 'PP Fraktion Mono', 'JetBrains Mono', monospace;
+        }
+
+        body { font-family: var(--font-body); }
+        h1, h2, h3, .font-display-hero, .font-headline-lg { font-family: var(--font-headings); }
+        .font-label-technical { font-family: var(--font-mono); }
+
+
+        body {
+            background-color: theme('colors.surface');
+            color: theme('colors.on-surface');
+            /* Architectural noise texture */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        }
+        
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        
+        /* Glassmorphism helpers */
+        .glass-nav {
+            background: rgba(43, 43, 43, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .elegant-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
+        }
+        
+        /* Subtle image hover effect for gallery */
+        .gallery-item {
+            overflow: hidden;
+            border-radius: theme('borderRadius.DEFAULT');
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        
+        .gallery-item img {
+            transition: transform 0.8s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.03);
+        }
+
+        .video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .video-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6) 100%);
+        }
+
+        .video-bg {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 right-0 z-50 px-container-px py-6 max-w-[1440px] mx-auto pointer-events-none">
+<div class="bg-charcoal/90 backdrop-blur-lg border border-white/10 shadow-2xl rounded-full px-8 py-4 flex justify-between items-center pointer-events-auto transition-all duration-500 hover:scale-[1.01]"><div class="flex items-center space-x-12"><a href="https://payro.ec/home" class="pointer-events-auto flex items-center gap-3"><svg viewBox="0 0 100 120" class="h-10 w-auto text-warm-gold" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M35,20 L35,80 A15,15 0 0,0 65,80 L65,50 A10,10 0 0,0 45,50 L45,70 A6,6 0 1,1 51,70 L45,70 L45,100" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path></svg><div class="h-8 w-px bg-white/20"></div><img alt="Payró | Grupo Inmobiliario Graiman" class="h-10 md:h-12 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz"></a></div><div class="hidden md:flex items-center gap-x-9"><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/el-origen">El Origen</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/el-proyecto">El Proyecto</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/tipologias">Tipologías</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/amenidades">Amenidades</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/galeria">Galería</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/ubicacion">Ubicación</a></div><div class="flex items-center gap-2"><a href="https://payro.ec/contacto" class="bg-warm-gold text-charcoal px-6 py-2.5 rounded-full text-[10px] font-label-allcaps uppercase tracking-wider hover:bg-white transition-colors inline-block text-center pointer-events-auto flex items-center justify-center">Contacto</a><button id="mobile-menu-btn" class="pointer-events-auto flex md:hidden items-center justify-center text-pure-white hover:text-warm-gold transition-colors focus:outline-none"><span class="material-symbols-outlined text-[28px]">menu</span></button></div></div>
+</nav>
+<!-- Hero Section with Full Screen Video -->
+<section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+<div class="video-container">
+<video autoplay="" class="video-bg" loop="" muted="" playsinline="">
+<source src="https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1b360fd53fc25488c7dac5.mp4" type="video/mp4"/>
+</video>
+</div>
+<header class="relative z-10 text-center max-w-4xl px-container-px">
+<div class="elegant-divider mb-stack-md w-24 mx-auto"></div>
+<h1 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-white mb-stack-sm drop-shadow-2xl">
+            Galería de Renders
+        </h1>
+<p class="font-body-reading text-body-reading text-pure-white md:text-2xl drop-shadow-lg">
+            Visiones de un Nuevo Hogar
+        </p>
+</header>
+</section>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-section-py-mobile md:pt-section-py-desktop pb-section-py-mobile md:pb-section-py-desktop px-container-px max-w-[1440px] mx-auto w-full">
+<!-- Bento Grid Gallery -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter-grid">
+<!-- Large Feature 1 -->
+<div class="md:col-span-8 gallery-item aspect-[1.78] relative bg-surface-variant">
+<img alt="Render Exterior Amplio" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgCJmt5Pp5mwWJr7rNkaJPVbIGtxT3uRBqbtmgrNw310uT-Htq3dSt2chCUXv1JQQJP6bOWLfygTxfXECJ8z50YasZ-P0RSyAUugAznHpDmGCCFHQ_YIKx0q-v07V3ugneFSIjN2gXHnTHcjbaBe965AyzEIg1UlMBpaJAMVdbrQ_J-OEW7IoZh7DGVplvB6Kknl5uqNiah5GCxPDHotkr5MrmC-5UAApoQfoe79wwD334BMEvuCnNZ8YK4KtHrbtEdmbng_gWJh9-"/>
+</div>
+<!-- Tall Feature -->
+<div class="md:col-span-4 md:row-span-2 gallery-item aspect-[0.72] md:aspect-auto h-full relative bg-surface-variant">
+<img alt="Render Fachada Vertical" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFtyN0HQ7BZvOoGhB74JRFRTCfp30VhB4VZWk-eGSa-Fiv80Mm9rX-rR3oRzfe3NnQINukz2791j4MvcgAKiIDYijrzHbvLU-a4Qdyvtqp6IZDZPRSThUtQU_KTFsBSXZjnI87bYR1la7ytI1fJ4hW0MQKIs5sgLyMWlt4CHkrYvUUmHT3e3nieoGL3PBu9lP8OQ6VVU11EMhIn5Xdk8TLuKjkzgR9A1xztlVkkaNV1vQ8bekUXNSmwz18rEnLnIMl0xTNonVKoh-m"/>
+</div>
+<!-- Medium 1 -->
+<div class="md:col-span-4 gallery-item aspect-[0.80] relative bg-surface-variant">
+<img alt="Detalle Arquitectónico 1" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFoL8EDvrAt4-qoi3lnq1cUbtrF19niCFvVMtNocaOh6B-9TuuzmNhvmEqJ-MxQTPIobewMdNr2QSBzwfpolY0xLq69WwB3NQqNwibI0h43ph1zTZeKiePM7EnPIk5IZ2ZodR0ZSVtk5e22Nbog0IDKOurUSxytfHP_Xj2fFoVgCLQm7WKaMhufiD6_I-tz3RsO-FRR6roU15wejQoMkJPKaXfNYiqbANpt7ToKu-2HM8mG54YgSaDpyBpRwuVLYFm2ebE017KvMdk"/>
+</div>
+<!-- Medium 2 -->
+<div class="md:col-span-4 gallery-item aspect-[0.80] relative bg-surface-variant">
+<img alt="Detalle Arquitectónico 2" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDneoF9S3iOMkY-EI4J6-P1gnV95drHVEHhZf0PEh1GSDbf6YqA439_w4Zcd6DWSl2k-nhl2GKnQDMGg2u7JqKPJ7BiwMkHfoKyIXJOuF32TMpKGcu8r908oFKBvl8i1zV_YGDgF720zUToKmYaC3BDFvgIvCOyRHySOthmpAThv5wyMlvirS6b3heBzQfgAS19f_0lGLp3C96q4Kqo8asRlNdJYbbT-d1i54VVc1S4v5JojogceQvR0SiKGtrgRGXhZBo2jk3Qpz1"/>
+</div>
+<!-- Full Width Feature -->
+<div class="md:col-span-12 gallery-item aspect-[1.78] mt-stack-md relative bg-surface-variant">
+<img alt="Vista Panorámica" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI-rBPyohGYjxIlfJEcWFqEH-WnXlx4lV0wj9tNQ14eJc4NuvguMKwIFvOqhYC9e5Eax6hfDiX0QOV3zSOu2736gVnmno8A1HS9KA-w5kNG7QyLjsavZYAp1Lgn4RMinzgLOZtVCwaeknBsbCHmHnzZ9cHKFhAV6Cld0jGQvxLssG8jl_dd4U05HmV8CgZ6H-hYXq4NZ2-IRJ7lz1WHISGRgGtpDvTNZeyjd9bkZ-Cu2bUOi-6Qe2eg5rRAFCxiCHBGmNz7_Ymudix"/>
+</div>
+</div>
+</main>
+<section class="bg-charcoal text-pure-white py-section-py-mobile md:py-section-py-desktop px-container-px w-full">
+<div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-stack-lg">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-3 mb-6">
+  <svg viewBox="0 0 100 120" class="h-10 w-auto text-warm-gold" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M35,20 L35,80 A15,15 0 0,0 65,80 L65,50 A10,10 0 0,0 45,50 L45,70 A6,6 0 1,1 51,70 L45,70 L45,100" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+  <div class="h-8 w-px bg-white/20"></div>
+  <img alt="Payró" class="h-9 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz">
+</div>
+<p class="font-body-reading text-body-reading text-cream/85 max-w-[200px]">La máxima expresión de Quiet Luxury en la ciudad.</p>
+</div>
+<div>
+<h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Navegación</h4>
+<ul class="space-y-4">
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/el-origen">El Origen</a></li>
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/el-proyecto">El Proyecto</a></li>
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/tipologias">Tipologías</a></li>
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/amenidades">Amenidades</a></li>
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/galeria">Galería</a></li>
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/ubicacion">Ubicación</a></li>
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/contacto">Contacto</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Recursos</h4>
+<ul class="space-y-4">
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="#">Brochure Digital</a></li>
+<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="#">Legal &amp; Privacidad</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Newsletter</h4>
+<p class="font-body-ui text-cream/40 mb-4">Suscríbete para recibir actualizaciones del proyecto.</p>
+<div class="relative">
+<input id="newsletter-email-shared" name="email" aria-label="Correo electrónico para boletín" class="w-full bg-transparent border-b border-warm-gold/30 py-2 font-body-ui text-pure-white focus:outline-none focus:border-warm-gold transition-colors" placeholder="email@ejemplo.com" type="email">
+<button class="absolute right-0 top-1 text-warm-gold">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+<div class="max-w-[1440px] mx-auto mt-20 pt-8 border-t border-warm-gold/20 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<span class="font-label-technical text-[10px] text-cream/40 tracking-widest uppercase">© 2026 Bouclé de Payró. Desarrollado por Payró, con el respaldo de 32 años de trayectoria de Graiman.</span>
+<div class="flex space-x-6">
+<a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span class="material-symbols-outlined">photo_camera</span></a>
+<a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
+</div>
+</div>
+</section>
+
+<!-- Mobile Navigation Drawer -->
+<div id="mobile-menu-drawer" class="fixed inset-0 z-[100] bg-charcoal/98 backdrop-blur-2xl transition-all duration-500 ease-in-out transform translate-x-full flex flex-col justify-between p-8 md:hidden" style="background-color: rgba(43, 43, 43, 0.98);">
+  <div class="flex justify-between items-center pb-6 border-b border-white/10">
+    <a href="https://payro.ec/home" class="flex items-center gap-3">
+      <svg viewBox="0 0 100 120" class="h-8 w-auto text-warm-gold" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M35,20 L35,80 A15,15 0 0,0 65,80 L65,50 A10,10 0 0,0 45,50 L45,70 A6,6 0 1,1 51,70 L45,70 L45,100" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <div class="h-6 w-px bg-white/20"></div>
+      <img alt="Payró" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz">
+    </a>
+    <button id="mobile-menu-close" class="text-pure-white hover:text-warm-gold transition-colors focus:outline-none">
+      <span class="material-symbols-outlined text-[32px]">close</span>
+    </button>
+  </div>
+  
+  <div class="flex flex-col space-y-6 my-auto">
+    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/home">Home</a>
+    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/el-origen">El Origen</a>
+    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/el-proyecto">El Proyecto</a>
+    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/tipologias">Tipologías</a>
+    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/amenidades">Amenidades</a>
+    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/galeria">Galería</a>
+    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/ubicacion">Ubicación</a>
+  </div>
+
+  <div class="pt-6 border-t border-white/10 flex flex-col space-y-4">
+    <a href="https://payro.ec/contacto" class="bg-warm-gold text-charcoal w-full py-4 rounded-full text-center text-xs font-label-allcaps uppercase tracking-wider hover:bg-white hover:text-charcoal transition-all block">Contacto</a>
+    <span class="font-label-technical text-[9px] text-pure-white/40 tracking-widest uppercase text-center">© 2026 Bouclé de Payró</span>
+  </div>
+</div>
+
+<script>
+    // Mobile Menu Toggler
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const mobileMenuDrawer = document.getElementById('mobile-menu-drawer');
+
+    if (mobileMenuBtn && mobileMenuClose && mobileMenuDrawer) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuDrawer.classList.remove('translate-x-full');
+            mobileMenuDrawer.classList.add('translate-x-0');
+            document.body.classList.add('overflow-hidden');
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenuDrawer.classList.remove('translate-x-0');
+            mobileMenuDrawer.classList.add('translate-x-full');
+            document.body.classList.remove('overflow-hidden');
+        });
+
+        // Close when clicking links
+        mobileMenuDrawer.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuDrawer.classList.remove('translate-x-0');
+                mobileMenuDrawer.classList.add('translate-x-full');
+                document.body.classList.remove('overflow-hidden');
+            });
+        });
+    }
+</script>
+</body></html>
