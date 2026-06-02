@@ -1,0 +1,65 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build site structure
+        run: |
+          mkdir -p dist
+          
+          # Copy 01_home to the root directory
+          if [ -d "screens_v2/01_home" ]; then
+            cp -r screens_v2/01_home/* dist/
+          fi
+          
+          # Helper function to map subdirectories to custom clean paths
+          copy_page() {
+            local src_dir="$1"
+            local dest_path="$2"
+            if [ -d "screens_v2/$src_dir" ]; then
+              mkdir -p "dist/$dest_path"
+              cp -r "screens_v2/$src_dir"/* "dist/$dest_path/"
+            fi
+          }
+          
+          copy_page "02_el_origen" "el-origen"
+          copy_page "03_el_proyecto" "el-proyecto"
+          copy_page "04_tipologias" "tipologias"
+          copy_page "05_amenidades" "amenidades"
+          copy_page "06_galeria" "galeria"
+          copy_page "07_ubicacion" "ubicacion"
+          copy_page "08_contacto" "contacto"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
