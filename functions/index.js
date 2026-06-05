@@ -182,13 +182,53 @@ app.post("/guests", verifyPasscode, async (req, res) => {
     const ticketId = await createUniqueTicketId();
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticketId}`;
 
+    let contactId = null;
+    const accessToken = process.env.GHL_ACCESS_TOKEN;
+    const ticketIdKey = process.env.GHL_TICKET_ID_KEY || "boucl_ticket_id";
+    const qrUrlKey = process.env.GHL_QR_URL_KEY || "boucl_qr_code_url";
+
+    if (accessToken) {
+      try {
+        const nameParts = guestName.trim().split(" ");
+        const firstName = nameParts[0] || "Guest";
+        const lastName = nameParts.slice(1).join(" ") || "";
+
+        const ghlPayload = {
+          firstName,
+          lastName,
+          name: guestName,
+          email: guestEmail || undefined,
+          phone: guestPhone || undefined,
+          companyName: company || undefined,
+          tags: ["boucle-invite", "manual-invite"],
+          customFields: [
+            { key: ticketIdKey, value: ticketId },
+            { key: qrUrlKey, value: qrUrl },
+          ],
+        };
+
+        const ghlResponse = await axios.post("https://services.leadconnectorhq.com/contacts/", ghlPayload, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Version: "2023-02-21",
+            "Content-Type": "application/json",
+          },
+        });
+
+        contactId = ghlResponse.data?.contact?.id || null;
+        console.log(`Successfully created manually added contact in GHL: ${contactId}`);
+      } catch (ghlError) {
+        console.error("Failed to create manual contact in GHL:", ghlError.response?.data || ghlError.message);
+      }
+    }
+
     const ticketData = {
       id: ticketId,
       guestName,
       guestEmail: guestEmail || "",
       guestPhone: guestPhone || "",
       company: company || "",
-      ghlContactId: null, // manually created
+      ghlContactId: contactId,
       status: "issued",
       issuedAt: new Date().toISOString(),
       checkedInAt: null,
