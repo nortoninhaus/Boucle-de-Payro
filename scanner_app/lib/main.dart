@@ -309,11 +309,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _checkedIn = 0;
   bool _isLoading = false;
   List<dynamic> _guests = [];
+  List<dynamic> _filteredGuests = [];
+  final TextEditingController _searchController = TextEditingController();
+  String _statusFilter = 'all'; // 'all', 'checked_in', 'issued'
 
   @override
   void initState() {
     super.initState();
     _fetchGuestData();
+    _searchController.addListener(_onSearchOrFilterChanged);
   }
 
   Future<void> _fetchGuestData() async {
@@ -341,6 +345,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _totalGuests = list.length;
             _checkedIn = list.where((g) => g['status'] == 'checked_in').length;
           });
+          _onSearchOrFilterChanged();
         }
       }
     } catch (e) {
@@ -354,6 +359,175 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  void _onSearchOrFilterChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredGuests = _guests.where((guest) {
+        // Status filter
+        if (_statusFilter == 'checked_in' && guest['status'] != 'checked_in') return false;
+        if (_statusFilter == 'issued' && guest['status'] == 'checked_in') return false;
+
+        // Search query
+        final name = (guest['guestName'] ?? '').toString().toLowerCase();
+        final email = (guest['guestEmail'] ?? '').toString().toLowerCase();
+        final company = (guest['company'] ?? '').toString().toLowerCase();
+        final code = (guest['id'] ?? '').toString().toLowerCase();
+        return name.contains(query) || email.contains(query) || company.contains(query) || code.contains(query);
+      }).toList();
+    });
+  }
+
+  Future<void> _addGuestManually(String name, String email, String phone, String company) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Color(0xFFA68B59))),
+    );
+
+    try {
+      final response = await http.post(
+        Uri.parse('${getApiBaseUrl()}/guests'),
+        headers: {
+          'Authorization': 'Bearer ${widget.passcode}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'guestName': name,
+          'guestEmail': email,
+          'guestPhone': phone,
+          'company': company,
+        }),
+      );
+
+      Navigator.of(context).pop(); // Close loader
+
+      if (response.statusCode == 200) {
+        _showToast('Invitado creado con éxito');
+        _fetchGuestData();
+      } else {
+        _showToast('Error al crear invitado');
+      }
+    } catch (_) {
+      Navigator.of(context).pop();
+      _showToast('Error de conexión');
+    }
+  }
+
+  Future<void> _editGuest(String ticketId, String name, String email, String phone, String company, String status) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Color(0xFFA68B59))),
+    );
+
+    try {
+      final response = await http.put(
+        Uri.parse('${getApiBaseUrl()}/guests/$ticketId'),
+        headers: {
+          'Authorization': 'Bearer ${widget.passcode}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'guestName': name,
+          'guestEmail': email,
+          'guestPhone': phone,
+          'company': company,
+          'status': status,
+        }),
+      );
+
+      Navigator.of(context).pop(); // Close loader
+
+      if (response.statusCode == 200) {
+        _showToast('Invitado actualizado');
+        _fetchGuestData();
+      } else {
+        _showToast('Error al actualizar');
+      }
+    } catch (_) {
+      Navigator.of(context).pop();
+      _showToast('Error de conexión');
+    }
+  }
+
+  Future<void> _deleteGuest(String ticketId) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Color(0xFFA68B59))),
+    );
+
+    try {
+      final response = await http.delete(
+        Uri.parse('${getApiBaseUrl()}/guests/$ticketId'),
+        headers: {
+          'Authorization': 'Bearer ${widget.passcode}',
+        },
+      );
+
+      Navigator.of(context).pop(); // Close loader
+
+      if (response.statusCode == 200) {
+        _showToast('Invitado eliminado');
+        _fetchGuestData();
+      } else {
+        _showToast('Error al eliminar');
+      }
+    } catch (_) {
+      Navigator.of(context).pop();
+      _showToast('Error de conexión');
+    }
+  }
+
+  Future<void> _toggleGuestCheckIn(Map<String, dynamic> guest) async {
+    final ticketId = guest['id'];
+    final isCheckedIn = guest['status'] == 'checked_in';
+    final newStatus = isCheckedIn ? 'issued' : 'checked_in';
+
+    _editGuest(
+      ticketId,
+      guest['guestName'] ?? '',
+      guest['guestEmail'] ?? '',
+      guest['guestPhone'] ?? '',
+      guest['company'] ?? '',
+      newStatus,
+    );
+  }
+
+  void _exportGuestsToCsv() {
+    if (_guests.isEmpty) {
+      _showToast('No hay datos para exportar');
+      return;
+    }
+
+    final buffer = StringBuffer();
+    buffer.writeln('ID,Nombre,Email,Telefono,Empresa,Estado,Fecha de Registro,Fecha de Ingreso');
+    for (var g in _guests) {
+      final id = g['id'] ?? '';
+      final name = g['guestName'] ?? '';
+      final email = g['guestEmail'] ?? '';
+      final phone = g['guestPhone'] ?? '';
+      final company = g['company'] ?? '';
+      final status = g['status'] ?? '';
+      final issued = g['issuedAt'] ?? '';
+      final checked = g['checkedInAt'] ?? '';
+      buffer.writeln('"$id","$name","$email","$phone","$company","$status","$issued","$checked"');
+    }
+
+    downloadCsvFile(buffer.toString(), 'invitados_boucle_${DateTime.now().millisecondsSinceEpoch}.csv');
+    _showToast('CSV Exportado');
+  }
+
+  void _showToast(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg, style: GoogleFonts.inter(color: const Color(0xFF1E1E1E), fontWeight: FontWeight.w600)),
+        backgroundColor: const Color(0xFFA68B59),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('staff_passcode');
@@ -362,6 +536,190 @@ class _DashboardScreenState extends State<DashboardScreen> {
         MaterialPageRoute(builder: (_) => const AuthScreen()),
       );
     }
+  }
+
+  Map<int, int> _getCheckInsByHour() {
+    final Map<int, int> hourlyData = {};
+    for (int h = 17; h <= 23; h++) {
+      hourlyData[h] = 0;
+    }
+    for (var guest in _guests) {
+      if (guest['status'] == 'checked_in' && guest['checkedInAt'] != null) {
+        try {
+          final dt = DateTime.parse(guest['checkedInAt']).toLocal();
+          final hour = dt.hour;
+          if (hour >= 17 && hour <= 23) {
+            hourlyData[hour] = (hourlyData[hour] ?? 0) + 1;
+          }
+        } catch (_) {}
+      }
+    }
+    return hourlyData;
+  }
+
+  void _showAddGuestDialog() {
+    final nameCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final compCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF2B2B2B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Colors.white10)),
+        title: Text('Añadir Invitado', style: GoogleFonts.playfairDisplay(color: const Color(0xFFA68B59))),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDialogField('Nombre Completo *', nameCtrl),
+              _buildDialogField('Correo Electrónico', emailCtrl, inputType: TextInputType.emailAddress),
+              _buildDialogField('Teléfono', phoneCtrl, inputType: TextInputType.phone),
+              _buildDialogField('Empresa', compCtrl),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('CANCELAR', style: GoogleFonts.inter(color: Colors.white38)),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA68B59), foregroundColor: const Color(0xFF1E1E1E)),
+            child: Text('CREAR', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+            onPressed: () {
+              if (nameCtrl.text.trim().isEmpty) {
+                _showToast('Nombre es requerido');
+                return;
+              }
+              Navigator.of(ctx).pop();
+              _addGuestManually(nameCtrl.text, emailCtrl.text, phoneCtrl.text, compCtrl.text);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  void _showEditGuestDialog(Map<String, dynamic> guest) {
+    final nameCtrl = TextEditingController(text: guest['guestName']);
+    final emailCtrl = TextEditingController(text: guest['guestEmail']);
+    final phoneCtrl = TextEditingController(text: guest['guestPhone']);
+    final compCtrl = TextEditingController(text: guest['company']);
+    String status = guest['status'] ?? 'issued';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: const Color(0xFF2B2B2B),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Colors.white10)),
+          title: Text('Editar Invitado', style: GoogleFonts.playfairDisplay(color: const Color(0xFFA68B59))),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildDialogField('Nombre Completo *', nameCtrl),
+                _buildDialogField('Correo Electrónico', emailCtrl, inputType: TextInputType.emailAddress),
+                _buildDialogField('Teléfono', phoneCtrl, inputType: TextInputType.phone),
+                _buildDialogField('Empresa', compCtrl),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Estado de check-in:', style: GoogleFonts.inter(fontSize: 13, color: Colors.white60)),
+                    DropdownButton<String>(
+                      dropdownColor: const Color(0xFF2B2B2B),
+                      value: status,
+                      items: const [
+                        DropdownMenuItem(value: 'issued', child: Text('Pendiente')),
+                        DropdownMenuItem(value: 'checked_in', child: Text('Ingresado')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) {
+                          setDialogState(() {
+                            status = val;
+                          });
+                        }
+                      },
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('ELIMINAR', style: GoogleFonts.inter(color: Colors.redAccent)),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _showDeleteConfirmDialog(guest['id']);
+              },
+            ),
+            const Spacer(),
+            TextButton(
+              child: Text('CANCELAR', style: GoogleFonts.inter(color: Colors.white38)),
+              onPressed: () => Navigator.of(ctx).pop(),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFA68B59), foregroundColor: const Color(0xFF1E1E1E)),
+              child: Text('GUARDAR', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+              onPressed: () {
+                if (nameCtrl.text.trim().isEmpty) {
+                  _showToast('Nombre es requerido');
+                  return;
+                }
+                Navigator.of(ctx).pop();
+                _editGuest(guest['id'], nameCtrl.text, emailCtrl.text, phoneCtrl.text, compCtrl.text, status);
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmDialog(String ticketId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF2B2B2B),
+        title: Text('Eliminar Invitado', style: GoogleFonts.playfairDisplay(color: Colors.redAccent)),
+        content: Text('¿Está seguro de que desea eliminar este ticket? Esta acción no se puede deshacer.', style: GoogleFonts.inter()),
+        actions: [
+          TextButton(
+            child: Text('CANCELAR', style: GoogleFonts.inter(color: Colors.white38)),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white),
+            child: Text('ELIMINAR', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              _deleteGuest(ticketId);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDialogField(String label, TextEditingController ctrl, {TextInputType inputType = TextInputType.text}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: ctrl,
+        keyboardType: inputType,
+        style: GoogleFonts.inter(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.inter(color: Colors.white38),
+          enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white12)),
+          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFA68B59))),
+        ),
+      ),
+    );
   }
 
   @override
@@ -374,11 +732,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: const Color(0xFF2B2B2B),
         elevation: 0,
         title: Text(
-          'Bouclé de Payró',
+          'B O U C L É',
           style: GoogleFonts.playfairDisplay(
             fontWeight: FontWeight.w400,
             fontSize: 20,
-            letterSpacing: 2.0,
+            letterSpacing: 3.0,
             color: const Color(0xFFA68B59),
           ),
         ),
@@ -393,181 +751,491 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: _isLoading && _guests.isEmpty
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFFA68B59)))
-            : RefreshIndicator(
-                onRefresh: _fetchGuestData,
-                color: const Color(0xFFA68B59),
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Panel de Evento',
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 28,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Registro y control de acceso en tiempo real',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: Colors.white38,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Stats Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard('Invitados', _totalGuests.toString(), Colors.white),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 950) {
+            // Desktop/Tablet Responsive View
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Left Panel: Dashboard Metrics & Charts
+                SizedBox(
+                  width: 380,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Panel de Control', style: GoogleFonts.playfairDisplay(fontSize: 28, color: Colors.white)),
+                        const SizedBox(height: 16),
+                        _buildStatCard('Total Invitados', _totalGuests.toString(), Colors.white),
+                        const SizedBox(height: 12),
+                        _buildStatCard('Ingresados', _checkedIn.toString(), const Color(0xFFA68B59)),
+                        const SizedBox(height: 12),
+                        _buildStatCard('Restantes', remaining.toString(), Colors.white38),
+                        const SizedBox(height: 24),
+                        // Donut Visualizer
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2B2B2B),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white10),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildStatCard('Ingresados', _checkedIn.toString(), const Color(0xFFA68B59)),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildStatCard('Restantes', remaining.toString(), Colors.white54),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      // Progress Bar
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2B2B2B),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white10),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Progreso de Entrada', style: GoogleFonts.inter(fontSize: 13, color: Colors.white70)),
-                                Text('$percent%', style: GoogleFonts.jetBrainsMono(fontWeight: FontWeight.w600, color: const Color(0xFFA68B59))),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: _totalGuests > 0 ? _checkedIn / _totalGuests : 0.0,
-                                minHeight: 8,
-                                backgroundColor: Colors.white12,
-                                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFA68B59)),
+                          child: Column(
+                            children: [
+                              Text('Proporción de Ingresos', style: GoogleFonts.inter(fontSize: 13, color: Colors.white60)),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 110,
+                                width: 110,
+                                child: Stack(
+                                  children: [
+                                    CustomPaint(
+                                      size: const Size(110, 110),
+                                      painter: DonutChartPainter(total: _totalGuests, checkedIn: _checkedIn),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        '$percent%',
+                                        style: GoogleFonts.jetBrainsMono(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFFA68B59)),
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
+                              const SizedBox(height: 12),
+                              Text('Ingresados vs Pendientes', style: GoogleFonts.inter(fontSize: 11, color: Colors.white38)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Timeline Line Chart
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2B2B2B),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.white10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Llegadas por Hora', style: GoogleFonts.inter(fontSize: 13, color: Colors.white60)),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: 90,
+                                width: double.infinity,
+                                child: CustomPaint(
+                                  painter: TimelineLineChartPainter(_getCheckInsByHour()),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('17h', style: GoogleFonts.jetBrainsMono(fontSize: 10, color: Colors.white24)),
+                                  Text('20h', style: GoogleFonts.jetBrainsMono(fontSize: 10, color: Colors.white24)),
+                                  Text('23h', style: GoogleFonts.jetBrainsMono(fontSize: 10, color: Colors.white24)),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFA68B59),
+                              foregroundColor: const Color(0xFF1E1E1E),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            icon: const Icon(Icons.qr_code_scanner),
+                            label: Text('ESCANEAR TICKET', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              final result = await Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => ScannerScreen(passcode: widget.passcode)),
+                              );
+                              if (result == true) _fetchGuestData();
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                // Divider
+                Container(width: 1, color: Colors.white10, height: double.infinity),
+                // Right Panel: Attendee Management Tool
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Gestión de Invitados', style: GoogleFonts.playfairDisplay(fontSize: 24, color: Colors.white)),
+                            Row(
+                              children: [
+                                TextButton.icon(
+                                  icon: const Icon(Icons.download, color: Color(0xFFA68B59)),
+                                  label: Text('EXPORTAR CSV', style: GoogleFonts.inter(color: const Color(0xFFA68B59))),
+                                  onPressed: _exportGuestsToCsv,
+                                ),
+                                const SizedBox(width: 12),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF2B2B2B),
+                                    side: const BorderSide(color: Color(0xFFA68B59), width: 1),
+                                  ),
+                                  icon: const Icon(Icons.add, color: Color(0xFFA68B59)),
+                                  label: Text('AÑADIR MANUAL', style: GoogleFonts.inter(color: const Color(0xFFA68B59))),
+                                  onPressed: _showAddGuestDialog,
+                                )
+                              ],
                             )
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 36),
-                      // Action buttons
-                      SizedBox(
-                        width: double.infinity,
-                        height: 64,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFA68B59),
-                            foregroundColor: const Color(0xFF1E1E1E),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                          icon: const Icon(Icons.qr_code_scanner, size: 24),
-                          label: Text(
-                            'ESCANEAR TICKET QR',
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                          onPressed: () async {
-                            final result = await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ScannerScreen(passcode: widget.passcode),
-                              ),
-                            );
-                            if (result == true) {
-                              _fetchGuestData();
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 64,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            side: const BorderSide(color: Colors.white24, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                          icon: const Icon(Icons.people_outline, size: 24),
-                          label: Text(
-                            'LISTA DE INVITADOS',
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                          onPressed: () async {
-                            final result = await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => GuestListScreen(
-                                  passcode: widget.passcode,
-                                  guests: _guests,
+                        const SizedBox(height: 20),
+                        // Search & Filter Row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                style: GoogleFonts.inter(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: 'Buscar por nombre, empresa, email...',
+                                  prefixIcon: const Icon(Icons.search, color: Colors.white38),
+                                  filled: true,
+                                  fillColor: const Color(0xFF2B2B2B),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
                                 ),
                               ),
-                            );
-                            if (result == true) {
-                              _fetchGuestData();
-                            }
-                          },
+                            ),
+                            const SizedBox(width: 16),
+                            _buildFilterChip('Todos', 'all'),
+                            const SizedBox(width: 8),
+                            _buildFilterChip('Ingresados', 'checked_in'),
+                            const SizedBox(width: 8),
+                            _buildFilterChip('Pendientes', 'issued'),
+                          ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 20),
+                        // Guests Table Grid
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2B2B2B),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white10),
+                            ),
+                            child: _isLoading
+                                ? const Center(child: CircularProgressIndicator(color: Color(0xFFA68B59)))
+                                : _filteredGuests.isEmpty
+                                    ? Center(child: Text('No hay invitados que coincidan con la búsqueda', style: GoogleFonts.inter(color: Colors.white38)))
+                                    : ListView.separated(
+                                        itemCount: _filteredGuests.length,
+                                        separatorBuilder: (_, __) => const Divider(color: Colors.white10, height: 1),
+                                        itemBuilder: (ctx, index) {
+                                          final g = _filteredGuests[index];
+                                          final isChecked = g['status'] == 'checked_in';
+                                          return ListTile(
+                                            title: Text(g['guestName'] ?? 'Invitado', style: GoogleFonts.playfairDisplay(fontSize: 16, color: Colors.white)),
+                                            subtitle: Text(
+                                              '${g['company'] ?? 'Invitado Especial'} • ${g['id'] ?? ''}',
+                                              style: GoogleFonts.inter(fontSize: 12, color: Colors.white38),
+                                            ),
+                                            trailing: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                // Toggle CheckIn button
+                                                IconButton(
+                                                  icon: Icon(
+                                                    isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
+                                                    color: isChecked ? const Color(0xFF48645C) : Colors.white24,
+                                                  ),
+                                                  onPressed: () => _toggleGuestCheckIn(g),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.edit_outlined, color: Color(0xFFA68B59)),
+                                                  onPressed: () => _showEditGuestDialog(g),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
+                )
+              ],
+            );
+          } else {
+            // Mobile Layout
+            return RefreshIndicator(
+              onRefresh: _fetchGuestData,
+              color: const Color(0xFFA68B59),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Panel de Evento', style: GoogleFonts.playfairDisplay(fontSize: 26, color: Colors.white)),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(child: _buildStatCard('Invitados', _totalGuests.toString(), Colors.white)),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildStatCard('Ingresados', _checkedIn.toString(), const Color(0xFFA68B59))),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildStatCard('Restantes', remaining.toString(), Colors.white38)),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Progress Bar
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: _totalGuests > 0 ? _checkedIn / _totalGuests : 0.0,
+                        minHeight: 6,
+                        backgroundColor: Colors.white12,
+                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFA68B59)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Main Action Buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFA68B59),
+                              foregroundColor: const Color(0xFF1E1E1E),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            icon: const Icon(Icons.qr_code_scanner),
+                            label: Text('ESCANEAR QR', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              final result = await Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => ScannerScreen(passcode: widget.passcode)),
+                              );
+                              if (result == true) _fetchGuestData();
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white24),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            icon: const Icon(Icons.people_outline),
+                            label: Text('INVITADOS', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              final result = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => GuestListScreen(passcode: widget.passcode, guests: _guests),
+                                ),
+                              );
+                              if (result == true) _fetchGuestData();
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Quick add / export in mobile
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Acciones rápidas', style: GoogleFonts.inter(fontSize: 14, color: Colors.white60, fontWeight: FontWeight.bold)),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.download, color: Color(0xFFA68B59)),
+                              onPressed: _exportGuestsToCsv,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add, color: Color(0xFFA68B59)),
+                              onPressed: _showAddGuestDialog,
+                            ),
+                          ],
+                        )
+                      ],
+                    )
+                  ],
                 ),
               ),
+            );
+          }
+        },
       ),
     );
   }
 
   Widget _buildStatCard(String title, String val, Color valColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF2B2B2B),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white10),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.inter(fontSize: 12, color: Colors.white38)),
+          Text(title, style: GoogleFonts.inter(fontSize: 11, color: Colors.white38)),
           const SizedBox(height: 8),
-          Text(
-            val,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              color: valColor,
-            ),
-          )
+          Text(val, style: GoogleFonts.jetBrainsMono(fontSize: 24, fontWeight: FontWeight.bold, color: valColor)),
         ],
       ),
     );
   }
+
+  Widget _buildFilterChip(String label, String filter) {
+    final active = _statusFilter == filter;
+    return ChoiceChip(
+      label: Text(label, style: GoogleFonts.inter(fontSize: 12, color: active ? const Color(0xFF1E1E1E) : Colors.white)),
+      selected: active,
+      selectedColor: const Color(0xFFA68B59),
+      backgroundColor: const Color(0xFF2B2B2B),
+      onSelected: (selected) {
+        if (selected) {
+          setState(() {
+            _statusFilter = filter;
+          });
+          _onSearchOrFilterChanged();
+        }
+      },
+    );
+  }
+}
+
+class DonutChartPainter extends CustomPainter {
+  final int total;
+  final int checkedIn;
+  DonutChartPainter({required this.total, required this.checkedIn});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final strokeWidth = size.width * 0.18;
+
+    final basePaint = Paint()
+      ..color = Colors.white12
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    final progressPaint = Paint()
+      ..color = const Color(0xFFA68B59)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius - strokeWidth / 2, basePaint);
+
+    if (total > 0 && checkedIn > 0) {
+      final sweepAngle = (checkedIn / total) * 2 * 3.14159265;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+        -3.14159265 / 2,
+        sweepAngle,
+        false,
+        progressPaint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+class TimelineLineChartPainter extends CustomPainter {
+  final Map<int, int> hourlyData;
+  TimelineLineChartPainter(this.hourlyData);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (hourlyData.isEmpty) return;
+
+    final paintLine = Paint()
+      ..color = const Color(0xFFA68B59)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    final paintFill = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          const Color(0xFFA68B59).withOpacity(0.3),
+          const Color(0xFFA68B59).withOpacity(0.0),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..style = PaintingStyle.fill;
+
+    final paintGrid = Paint()
+      ..color = Colors.white10
+      ..strokeWidth = 1;
+
+    final list = hourlyData.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    final maxVal = list.map((e) => e.value).reduce((a, b) => a > b ? a : b);
+    final divisor = maxVal == 0 ? 1 : maxVal;
+
+    final stepX = size.width / (list.length - 1);
+    final path = Path();
+    final fillPath = Path();
+
+    for (int i = 0; i < list.length; i++) {
+      final x = i * stepX;
+      final y = size.height - (list[i].value / divisor) * (size.height * 0.7) - 10;
+
+      if (i == 0) {
+        path.moveTo(x, y);
+        fillPath.moveTo(x, size.height);
+        fillPath.lineTo(x, y);
+      } else {
+        path.lineTo(x, y);
+        fillPath.lineTo(x, y);
+      }
+      if (i == list.length - 1) {
+        fillPath.lineTo(x, size.height);
+        fillPath.close();
+      }
+
+      // Draw grid line
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paintGrid);
+
+      // Draw dot
+      if (list[i].value > 0) {
+        final dotPaint = Paint()
+          ..color = const Color(0xFFA68B59)
+          ..style = PaintingStyle.fill;
+        canvas.drawCircle(Offset(x, y), 4, dotPaint);
+      }
+    }
+
+    canvas.drawPath(fillPath, paintFill);
+    canvas.drawPath(path, paintLine);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class ScannerScreen extends StatefulWidget {

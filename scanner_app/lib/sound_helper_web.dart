@@ -1,5 +1,8 @@
 import 'package:web/web.dart' as web;
 import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'dart:js_interop';
+import 'dart:typed_data';
 
 void _beep(double frequency, double durationSeconds, String type) {
   try {
@@ -46,3 +49,20 @@ void playErrorSound() {
   HapticFeedback.vibrate();
   _beep(140.00, 0.35, 'sawtooth'); // Low buzz
 }
+
+void downloadCsvFile(String csvContent, String filename) {
+  try {
+    final bytes = utf8.encode(csvContent);
+    final u8List = Uint8List.fromList(bytes).toJS;
+    final blob = web.Blob([u8List].toJS, web.BlobPropertyBag(type: 'text/csv'));
+    final url = web.URL.createObjectURL(blob);
+    final anchor = web.document.createElement('a') as web.HTMLAnchorElement;
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    web.URL.revokeObjectURL(url);
+  } catch (e) {
+    print('Failed to download CSV: $e');
+  }
+}
+

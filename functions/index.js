@@ -171,6 +171,92 @@ app.get("/guests", verifyPasscode, async (req, res) => {
   }
 });
 
+// Route: Create guest manually (Requires authentication)
+app.post("/guests", verifyPasscode, async (req, res) => {
+  try {
+    const { guestName, guestEmail, guestPhone, company } = req.body || {};
+    if (!guestName) {
+      return res.status(400).json({ error: "Missing guest name" });
+    }
+
+    const ticketId = await createUniqueTicketId();
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticketId}`;
+
+    const ticketData = {
+      id: ticketId,
+      guestName,
+      guestEmail: guestEmail || "",
+      guestPhone: guestPhone || "",
+      company: company || "",
+      ghlContactId: null, // manually created
+      status: "issued",
+      issuedAt: new Date().toISOString(),
+      checkedInAt: null,
+    };
+
+    await db.collection("tickets").doc(ticketId).set(ticketData);
+    return res.status(200).json({ success: true, ticket: ticketData });
+  } catch (error) {
+    console.error("Error creating guest manually:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Route: Update guest details (Requires authentication)
+app.put("/guests/:ticketId", verifyPasscode, async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const { guestName, guestEmail, guestPhone, company, status } = req.body || {};
+
+    const ticketRef = db.collection("tickets").doc(ticketId);
+    const ticketDoc = await ticketRef.get();
+
+    if (!ticketDoc.exists) {
+      return res.status(444).json({ error: "Ticket not found" });
+    }
+
+    const updates = {};
+    if (guestName !== undefined) updates.guestName = guestName;
+    if (guestEmail !== undefined) updates.guestEmail = guestEmail;
+    if (guestPhone !== undefined) updates.guestPhone = guestPhone;
+    if (company !== undefined) updates.company = company;
+    if (status !== undefined) {
+      updates.status = status;
+      if (status === "checked_in") {
+        updates.checkedInAt = new Date().toISOString();
+      } else {
+        updates.checkedInAt = null;
+      }
+    }
+
+    await ticketRef.update(updates);
+    const updatedDoc = await ticketRef.get();
+    return res.status(200).json({ success: true, ticket: updatedDoc.data() });
+  } catch (error) {
+    console.error("Error updating guest:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Route: Delete guest (Requires authentication)
+app.delete("/guests/:ticketId", verifyPasscode, async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const ticketRef = db.collection("tickets").doc(ticketId);
+    const ticketDoc = await ticketRef.get();
+
+    if (!ticketDoc.exists) {
+      return res.status(444).json({ error: "Ticket not found" });
+    }
+
+    await ticketRef.delete();
+    return res.status(200).json({ success: true, message: "Ticket deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting guest:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 // Route: Ticket check-in (Requires authentication)
 app.post("/checkIn", verifyPasscode, async (req, res) => {
   const { ticketId } = req.body || {};
