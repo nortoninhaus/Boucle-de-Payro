@@ -100,19 +100,83 @@ app.post("/ghl-webhook", async (req, res) => {
     await ticketRef.set(ticketData);
     console.log(`Ticket ${ticketId} created in Firestore for GHL Contact ${contactId}`);
 
+    // Check for companion guests
+    const acomp1Name = (body.acompanante_1_nombre || body.acompanante1Nombre || "").trim();
+    const acomp2Name = (body.acompanante_2_nombre || body.acompanante2Nombre || "").trim();
+
+    const companionTickets = [];
+    const ticketIdKey = process.env.GHL_TICKET_ID_KEY || "boucl_ticket_id";
+    const qrUrlKey = process.env.GHL_QR_URL_KEY || "boucl_qr_code_url";
+
+    const customFieldsToUpdate = [
+      { key: ticketIdKey, value: ticketId },
+      { key: qrUrlKey, value: qrUrl },
+    ];
+
+    if (acomp1Name) {
+      const acomp1TicketId = await createUniqueTicketId();
+      const acomp1QrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${acomp1TicketId}`;
+
+      const acomp1TicketData = {
+        id: acomp1TicketId,
+        guestName: acomp1Name,
+        guestEmail: "",
+        guestPhone: "",
+        company: company,
+        ghlContactId: contactId,
+        status: "issued",
+        issuedAt: new Date().toISOString(),
+        checkedInAt: null,
+        isCompanion: true,
+        principalName: guestName,
+      };
+
+      await db.collection("tickets").doc(acomp1TicketId).set(acomp1TicketData);
+      companionTickets.push(acomp1TicketData);
+      console.log(`Companion 1 ticket ${acomp1TicketId} created for ${acomp1Name}`);
+
+      customFieldsToUpdate.push(
+        { key: "acompanante_1_ticket_id", value: acomp1TicketId },
+        { key: "acompanante_1_qr_url", value: acomp1QrUrl }
+      );
+    }
+
+    if (acomp2Name) {
+      const acomp2TicketId = await createUniqueTicketId();
+      const acomp2QrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${acomp2TicketId}`;
+
+      const acomp2TicketData = {
+        id: acomp2TicketId,
+        guestName: acomp2Name,
+        guestEmail: "",
+        guestPhone: "",
+        company: company,
+        ghlContactId: contactId,
+        status: "issued",
+        issuedAt: new Date().toISOString(),
+        checkedInAt: null,
+        isCompanion: true,
+        principalName: guestName,
+      };
+
+      await db.collection("tickets").doc(acomp2TicketId).set(acomp2TicketData);
+      companionTickets.push(acomp2TicketData);
+      console.log(`Companion 2 ticket ${acomp2TicketId} created for ${acomp2Name}`);
+
+      customFieldsToUpdate.push(
+        { key: "acompanante_2_ticket_id", value: acomp2TicketId },
+        { key: "acompanante_2_qr_url", value: acomp2QrUrl }
+      );
+    }
+
     // Update GHL Contact Custom Fields
     const accessToken = process.env.GHL_ACCESS_TOKEN;
-    const ticketIdKey = process.env.GHL_TICKET_ID_KEY || "boucle_ticket_id";
-    const qrUrlKey = process.env.GHL_QR_URL_KEY || "boucle_qr_url";
 
     if (accessToken) {
       try {
         const ghlUrl = `https://services.leadconnectorhq.com/contacts/${contactId}`;
         const ghlPayload = {
-          customFields: [
-            { key: ticketIdKey, value: ticketId },
-            { key: qrUrlKey, value: qrUrl },
-          ],
+          customFields: customFieldsToUpdate,
         };
 
         await axios.put(ghlUrl, ghlPayload, {
@@ -122,10 +186,10 @@ app.post("/ghl-webhook", async (req, res) => {
             "Content-Type": "application/json",
           },
         });
-        console.log(`Successfully updated contact ${contactId} in GHL with ticket ${ticketId}`);
+        console.log(`Successfully updated contact ${contactId} in GHL with all generated tickets`);
       } catch (ghlError) {
         console.error("Failed to update GHL contact fields:", ghlError.response?.data || ghlError.message);
-        // Don't fail the webhook response because the ticket is already saved in our DB
+        // Don't fail the webhook response because the tickets are already saved in our DB
       }
     } else {
       console.warn("GHL_ACCESS_TOKEN not set. Skipping GHL contact update.");
@@ -133,9 +197,10 @@ app.post("/ghl-webhook", async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Ticket created successfully",
+      message: "Tickets created successfully",
       ticket: ticketData,
       qrCodeUrl: qrUrl,
+      companions: companionTickets,
     });
   } catch (error) {
     console.error("Error processing webhook:", error);
