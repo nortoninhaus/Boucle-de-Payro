@@ -100,74 +100,125 @@ app.post("/ghl-webhook", async (req, res) => {
     await ticketRef.set(ticketData);
     console.log(`Ticket ${ticketId} created in Firestore for GHL Contact ${contactId}`);
 
-    // Check for companion guests
-    const acomp1Name = (body.acompanante_1_nombre || body.acompanante1Nombre || "").trim();
-    const acomp2Name = (body.acompanante_2_nombre || body.acompanante2Nombre || "").trim();
-
+    // Check for companion guests using existing fields in GHL
     const companionTickets = [];
+    
+    // Parse companion names from Acompañante Payró (acompaante/acompante/acompanante) or standard payload fields
+    let companionNames = [];
+    let extraGuestsCount = 0;
+    const rawCompanions = [];
+    
+    // Support literal GHL webhook keys
+    if (body["Acompañante Payró"]) rawCompanions.push(body["Acompañante Payró"]);
+    if (body["Acompañante"]) rawCompanions.push(body["Acompañante"]);
+    
+    // Snake_case keys as fallback
+    if (body.acompaante) rawCompanions.push(body.acompaante);
+    if (body.acompante) rawCompanions.push(body.acompante);
+    if (body.acompanante) rawCompanions.push(body.acompanante);
+    if (body.acompanante_payro) rawCompanions.push(body.acompanante_payro);
+    if (body.acompanante_1_nombre) rawCompanions.push(body.acompanante_1_nombre);
+    if (body.acompanante_2_nombre) rawCompanions.push(body.acompanante_2_nombre);
+
+    const combinedRaw = rawCompanions.map(c => c.toString().trim()).join(", ").trim();
+    if (combinedRaw) {
+      if (/^\d+$/.test(combinedRaw)) {
+        extraGuestsCount = parseInt(combinedRaw, 10) || 0;
+      } else {
+        // Normalize separating by " y " or " Y " to commas
+        const normalized = combinedRaw.replace(/\s+y\s+/gi, ", ");
+        companionNames = normalized
+          .split(/[,;\n\r]+/)
+          .map(name => name.trim())
+          .filter(name => name.length > 0);
+        
+        // Filter out any numeric fields that might represent quantity
+        companionNames = companionNames.filter(name => {
+          if (/^\d+$/.test(name)) {
+            const val = parseInt(name, 10) || 0;
+            if (val > extraGuestsCount) {
+              extraGuestsCount = val;
+            }
+            return false;
+          }
+          return true;
+        });
+      }
+    }
+
+    // Check Numero de invitados Payró and ¿Cuántos invitados aprox. serían?
+    const numInvitadosRaw = 
+      body["Numero de invitados Payró"] || 
+      body["¿Cuántos invitados aprox. serían?"] || 
+      body.numero_de_invitados || 
+      body.numero_invitados || 
+      body.numero_de_invitados_payro || 
+      body.cuntos_invitados_aprox_seran || 
+      "0";
+    const numInvitados = parseInt(numInvitadosRaw, 10) || 0;
+
+    // Determine final count of companion tickets
+    const finalCount = Math.max(numInvitados, extraGuestsCount, companionNames.length);
+    const finalCompanions = [];
+    for (let i = 0; i < finalCount; i++) {
+      if (i < companionNames.length) {
+        finalCompanions.push(companionNames[i]);
+      } else {
+        finalCompanions.push(`Acompañante ${i + 1} de ${guestName}`);
+      }
+    }
+
+    // Generate tickets for each companion
+    for (let i = 0; i < finalCompanions.length; i++) {
+      const compName = finalCompanions[i];
+      const compTicketId = await createUniqueTicketId();
+      
+      const compTicketData = {
+        id: compTicketId,
+        guestName: compName,
+        guestEmail: "",
+        guestPhone: "",
+        company: company,
+        ghlContactId: contactId,
+        status: "issued",
+        issuedAt: new Date().toISOString(),
+        checkedInAt: null,
+        isCompanion: true,
+        principalName: guestName,
+      };
+
+      await db.collection("tickets").doc(compTicketId).set(compTicketData);
+      companionTickets.push(compTicketData);
+      console.log(`Companion ticket ${compTicketId} created for ${compName}`);
+    }
+
     const ticketIdKey = process.env.GHL_TICKET_ID_KEY || "boucl_ticket_id";
     const qrUrlKey = process.env.GHL_QR_URL_KEY || "boucl_qr_code_url";
 
+    // Format final values to update GHL
+    let ticketIdValue = ticketId;
+    let qrUrlValue = qrUrl;
+
+    if (companionTickets.length > 0) {
+      // Create a formatted list of names and URLs for the message
+      const qrList = [];
+      qrList.push(`🎟️ ${guestName}: ${qrUrl}`);
+      
+      const ticketIds = [ticketId];
+      companionTickets.forEach(comp => {
+        const compQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${comp.id}`;
+        qrList.push(`🎟️ ${comp.guestName}: ${compQrUrl}`);
+        ticketIds.push(comp.id);
+      });
+
+      qrUrlValue = qrList.join("\n");
+      ticketIdValue = ticketIds.join(", ");
+    }
+
     const customFieldsToUpdate = [
-      { key: ticketIdKey, value: ticketId },
-      { key: qrUrlKey, value: qrUrl },
+      { key: ticketIdKey, value: ticketIdValue },
+      { key: qrUrlKey, value: qrUrlValue },
     ];
-
-    if (acomp1Name) {
-      const acomp1TicketId = await createUniqueTicketId();
-      const acomp1QrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${acomp1TicketId}`;
-
-      const acomp1TicketData = {
-        id: acomp1TicketId,
-        guestName: acomp1Name,
-        guestEmail: "",
-        guestPhone: "",
-        company: company,
-        ghlContactId: contactId,
-        status: "issued",
-        issuedAt: new Date().toISOString(),
-        checkedInAt: null,
-        isCompanion: true,
-        principalName: guestName,
-      };
-
-      await db.collection("tickets").doc(acomp1TicketId).set(acomp1TicketData);
-      companionTickets.push(acomp1TicketData);
-      console.log(`Companion 1 ticket ${acomp1TicketId} created for ${acomp1Name}`);
-
-      customFieldsToUpdate.push(
-        { key: "acompanante_1_ticket_id", value: acomp1TicketId },
-        { key: "acompanante_1_qr_url", value: acomp1QrUrl }
-      );
-    }
-
-    if (acomp2Name) {
-      const acomp2TicketId = await createUniqueTicketId();
-      const acomp2QrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${acomp2TicketId}`;
-
-      const acomp2TicketData = {
-        id: acomp2TicketId,
-        guestName: acomp2Name,
-        guestEmail: "",
-        guestPhone: "",
-        company: company,
-        ghlContactId: contactId,
-        status: "issued",
-        issuedAt: new Date().toISOString(),
-        checkedInAt: null,
-        isCompanion: true,
-        principalName: guestName,
-      };
-
-      await db.collection("tickets").doc(acomp2TicketId).set(acomp2TicketData);
-      companionTickets.push(acomp2TicketData);
-      console.log(`Companion 2 ticket ${acomp2TicketId} created for ${acomp2Name}`);
-
-      customFieldsToUpdate.push(
-        { key: "acompanante_2_ticket_id", value: acomp2TicketId },
-        { key: "acompanante_2_qr_url", value: acomp2QrUrl }
-      );
-    }
 
     // Update GHL Contact Custom Fields
     const accessToken = process.env.GHL_ACCESS_TOKEN;

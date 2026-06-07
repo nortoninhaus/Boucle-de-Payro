@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 
-<html class="light" lang="es"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Contacto | Bouclé de Payró</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;family=Playfair+Display:wght@100..900&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="light" lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Contacto | Bouclé de Payró</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;family=Playfair+Display:wght@100..900&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -92,19 +100,19 @@
                         "body-reading": ["PP Neue Montreal Book", "Inter", "sans-serif"]
                     },
                     "fontSize": {
-                        "display-hero-mobile": ["44px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
-                        "display-hero": ["80px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}],
-                        "label-allcaps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.2em", "fontWeight": "600"}],
-                        "label-technical": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500"}],
-                        "headline-lg": ["48px", {"lineHeight": "1.2", "fontWeight": "500"}],
-                        "body-ui": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}],
-                        "body-reading": ["17px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                        "display-hero-mobile": ["44px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "display-hero": ["80px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600" }],
+                        "label-allcaps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.2em", "fontWeight": "600" }],
+                        "label-technical": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "body-ui": ["15px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-reading": ["17px", { "lineHeight": "1.6", "fontWeight": "400" }]
                     }
                 },
             },
         }
     </script>
-<style>
+    <style>
         @font-face {
             font-family: 'PP Museum Light';
             src: url('https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1d175bff82912d65c97faf.otf') format('opentype');
@@ -112,6 +120,7 @@
             font-style: normal;
             font-display: swap;
         }
+
         @font-face {
             font-family: 'PP Neue Montreal Book';
             src: url('https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1d175d5a3e6e89b617e151.otf') format('opentype');
@@ -119,6 +128,7 @@
             font-style: normal;
             font-display: swap;
         }
+
         @font-face {
             font-family: 'PP Fraktion Mono';
             src: url('https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1d175bff82912d65c97f9d.otf') format('opentype');
@@ -126,249 +136,337 @@
             font-style: normal;
             font-display: swap;
         }
+
         :root {
             --font-headings: 'PP Museum Light', 'Playfair Display', serif;
             --font-body: 'PP Neue Montreal Book', 'Inter', system-ui, sans-serif;
             --font-mono: 'PP Fraktion Mono', 'JetBrains Mono', monospace;
         }
 
-        body { font-family: var(--font-body); }
-        h1, h2, h3, .font-display-hero, .font-headline-lg { font-family: var(--font-headings); }
-        .font-label-technical { font-family: var(--font-mono); }
+        body {
+            font-family: var(--font-body);
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-display-hero,
+        .font-headline-lg {
+            font-family: var(--font-headings);
+        }
+
+        .font-label-technical {
+            font-family: var(--font-mono);
+        }
 
 
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
+
         .stone-texture {
             background-image: url("https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1f4fde9e7a0d5a8b379656.jpg");
             background-repeat: repeat;
         }
+
         .elegant-divider {
             background: linear-gradient(to right, transparent, #a68b59, transparent);
             height: 1px;
             width: 100%;
             opacity: 0.3;
         }
+
         .glass-nav {
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
     </style>
 </head>
+
 <body class="bg-background text-on-background font-body-reading selection:bg-warm-gold/30">
-<!-- Top Navigation Shell -->
-<nav class="fixed top-0 left-0 right-0 z-50 px-container-px py-6 max-w-[1440px] mx-auto pointer-events-none">
-<div class="bg-charcoal/90 backdrop-blur-lg border border-white/10 shadow-2xl rounded-full px-8 py-4 flex justify-between items-center pointer-events-auto transition-all duration-500 hover:scale-[1.01]"><div class="flex items-center space-x-12"><a href="https://payro.ec/home" class="pointer-events-auto flex items-center gap-3"><img alt="Payró | Grupo Inmobiliario Graiman" class="h-10 md:h-12 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz"></a></div><div class="hidden md:flex items-center gap-x-9"><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/el-origen">El Origen</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/el-proyecto">El Proyecto</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/tipologias">Tipologías</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/amenidades">Amenidades</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/galeria">Galería</a><a class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors" href="https://payro.ec/ubicacion">Ubicación</a></div><div class="flex items-center gap-2"><a href="https://payro.ec/contacto" class="bg-warm-gold text-charcoal px-6 py-2.5 rounded-full text-[10px] font-label-allcaps uppercase tracking-wider hover:bg-white transition-colors inline-block text-center pointer-events-auto flex items-center justify-center">Contacto</a><button id="mobile-menu-btn" class="pointer-events-auto flex md:hidden items-center justify-center text-pure-white hover:text-warm-gold transition-colors focus:outline-none"><span class="material-symbols-outlined text-[28px]">menu</span></button></div></div>
-</nav>
-<!-- Hero Section -->
-<header class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-<div class="absolute inset-0 z-0">
-<div class="absolute inset-0 bg-charcoal/50 z-10"></div>
-<video autoplay="" class="w-full h-full object-cover" loop="" muted="" playsinline="">
-<source src="https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1b35fbff82912d65adc528.mp4" type="video/mp4"/>
-</video>
-</div>
-<div class="relative z-20 text-center max-w-4xl px-container-px">
-<span class="font-label-allcaps text-label-allcaps text-warm-gold mb-4 block tracking-[0.4em] uppercase">Exclusividad y Legado</span>
-<h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-pure-white mb-6">Comienza tu Legado</h1>
-<p class="font-body-reading text-body-reading text-pure-white max-w-2xl mx-auto mb-10">
-                Invitamos a los visionarios a descubrir un espacio donde la estabilidad arquitectónica se encuentra con el lujo silencioso. Agende una visita privada hoy mismo.
+    <!-- Top Navigation Shell -->
+    <nav class="fixed top-0 left-0 right-0 z-50 px-container-px py-6 max-w-[1440px] mx-auto pointer-events-none">
+        <div
+            class="bg-charcoal/90 backdrop-blur-lg border border-white/10 shadow-2xl rounded-full px-8 py-4 flex justify-between items-center pointer-events-auto transition-all duration-500 hover:scale-[1.01]">
+            <div class="flex items-center space-x-12"><a href="https://payro.ec/home"
+                    class="pointer-events-auto flex items-center gap-3"><img alt="Payró | Grupo Inmobiliario Graiman"
+                        class="h-10 md:h-12 w-auto object-contain"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz"></a>
+            </div>
+            <div class="hidden md:flex items-center gap-x-9"><a
+                    class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors"
+                    href="https://payro.ec/el-origen">El Origen</a><a
+                    class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors"
+                    href="https://payro.ec/el-proyecto">El Proyecto</a><a
+                    class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors"
+                    href="https://payro.ec/tipologias">Tipologías</a><a
+                    class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors"
+                    href="https://payro.ec/amenidades">Amenidades</a><a
+                    class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors"
+                    href="https://payro.ec/galeria">Galería</a><a
+                    class="text-sm font-label-allcaps text-pure-white/90 hover:text-warm-gold transition-colors"
+                    href="https://payro.ec/ubicacion">Ubicación</a></div>
+            <div class="flex items-center gap-2"><a href="https://payro.ec/contacto"
+                    class="bg-warm-gold text-charcoal px-6 py-2.5 rounded-full text-[10px] font-label-allcaps uppercase tracking-wider hover:bg-white transition-colors inline-block text-center pointer-events-auto flex items-center justify-center">Conocer
+                    el proyecto</a><button id="mobile-menu-btn"
+                    class="pointer-events-auto flex md:hidden items-center justify-center text-pure-white hover:text-warm-gold transition-colors focus:outline-none"><span
+                        class="material-symbols-outlined text-[28px]">menu</span></button></div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <header class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-charcoal/50 z-10"></div>
+            <video autoplay="" class="w-full h-full object-cover" loop="" muted="" playsinline="">
+                <source src="https://assets.cdn.filesafe.space/r50RsCwKrpRFpVaQUrzq/media/6a1b35fbff82912d65adc528.mp4"
+                    type="video/mp4" />
+            </video>
+        </div>
+        <div class="relative z-20 text-center max-w-4xl px-container-px">
+            <span
+                class="font-label-allcaps text-label-allcaps text-warm-gold mb-4 block tracking-[0.4em] uppercase">Exclusividad
+                y Legado</span>
+            <h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-pure-white mb-6">Comienza tu
+                Legado</h1>
+            <p class="font-body-reading text-body-reading text-pure-white max-w-2xl mx-auto mb-10">
+                Invitamos a los visionarios a descubrir un espacio donde la estabilidad arquitectónica se encuentra con
+                el lujo silencioso. Agende una visita privada hoy mismo.
             </p>
-<div class="flex justify-center">
-<div class="elegant-divider max-w-[200px]"></div>
-</div>
-</div>
-</header>
-<!-- Main Content: Form & Info Bento -->
-<main class="py-section-py-mobile md:py-section-py-desktop px-container-px max-w-[1440px] mx-auto">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-grid items-start">
-<!-- Contact Form Section -->
-<div class="lg:col-span-7 bg-pure-white p-6 md:p-16 rounded-xl shadow-lg relative overflow-hidden">
-<div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 opacity-5 pointer-events-none">
-<span class="material-symbols-outlined text-[72px] md:text-[120px] text-charcoal">edit_note</span>
-</div>
-<h2 class="font-headline-lg text-headline-lg text-charcoal mb-4">Inicie el Diálogo</h2>
-<p class="font-body-reading text-body-reading text-[#474746] mb-12">Complete el formulario y un asesor especializado se pondrá en contacto con usted en menos de 24 horas.</p>
-<div class="w-full min-h-[400px] md:min-h-[522px] relative">
-    <iframe
-        src="https://links.inhauscorp.com/widget/form/BWYQ47y8LopUm6KH3JY0"
-        style="width:100%;height:100%;border:none;border-radius:8px"
-        id="inline-BWYQ47y8LopUm6KH3JY0" 
-        data-layout="{'id':'INLINE'}"
-        data-trigger-type="alwaysShow"
-        data-trigger-value=""
-        data-activation-type="alwaysActivated"
-        data-activation-value=""
-        data-deactivation-type="neverDeactivate"
-        data-deactivation-value=""
-        data-form-name="Contacto"
-        data-height="522"
-        data-layout-iframe-id="inline-BWYQ47y8LopUm6KH3JY0"
-        data-form-id="BWYQ47y8LopUm6KH3JY0"
-        title="Contacto"
-    >
-    </iframe>
-    <script src="https://links.inhauscorp.com/js/form_embed.js"></script>
-</div>
-</div>
-<!-- Info & Map Section -->
-<div class="lg:col-span-5 space-y-gutter-grid">
-<!-- Info Card -->
-<div class="bg-charcoal p-10 md:p-12 text-pure-white rounded-xl stone-texture relative">
-<h3 class="font-headline-lg text-headline-lg text-warm-gold mb-8">Información de Venta</h3>
-<div class="space-y-10">
-<div class="flex gap-6">
-<div class="w-12 h-12 rounded-full border border-warm-gold/30 flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined text-warm-gold">location_on</span>
-</div>
-<div>
-<p class="font-label-allcaps text-label-allcaps text-warm-gold mb-2 uppercase">Dirección</p>
-<p class="font-body-reading text-body-reading">Av. Manuel J. Calle 2-145,<br/>Cuenca, Ecuador</p>
-</div>
-</div>
-<div class="flex gap-6">
-<div class="w-12 h-12 rounded-full border border-warm-gold/30 flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined text-warm-gold">call</span>
-</div>
-<div>
-<p class="font-label-allcaps text-label-allcaps text-warm-gold mb-2 uppercase">Atención Directa</p>
-<p class="font-body-reading text-body-reading">+593 (07) 413-5800</p>
-<p class="font-body-reading text-body-reading text-pure-white/60 text-sm">Lun - Vie: 09:00 - 18:00</p>
-</div>
-</div>
-<div class="flex gap-6">
-<div class="w-12 h-12 rounded-full border border-warm-gold/30 flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined text-warm-gold">mail</span>
-</div>
-<div>
-<p class="font-label-allcaps text-label-allcaps text-warm-gold mb-2 uppercase">Email</p>
-<p class="font-body-reading text-body-reading">contacto@boucle.com.ec</p>
-</div>
-</div>
-</div>
-</div>
-<!-- Map Representation -->
-<div class="relative h-[400px] bg-cream rounded-xl overflow-hidden group">
-<iframe class="w-full h-full border-0 grayscale opacity-80 hover:grayscale-0 transition-all duration-700 dark:invert-[90%] dark:hue-rotate-180 dark:grayscale-[0.7] dark:contrast-[1.2]" 
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.7234691244093!2d-79.0063162!3d-2.9011985!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91cd18174f4b1d6d%3A0xe54d5dcd2bb7cb56!2sAv.%20Manuel%20J.%20Calle%202-145%2C%20Cuenca!5e0!3m2!1sen!2sec!4v1717374000000!5m2!1sen!2sec" 
-        allowfullscreen="" 
-        loading="lazy" 
-        referrerpolicy="no-referrer-when-downgrade"
-        aria-label="Mapa interactivo de Google de Bouclé de Payró en Cuenca, Ecuador">
-</iframe>
-<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-<div class="bg-charcoal text-pure-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
-<span class="material-symbols-outlined text-warm-gold" style="font-variation-settings: 'FILL' 1;">location_on</span>
-<span class="font-label-allcaps text-label-allcaps uppercase">Nuestra Ubicación</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- Trust Signals Section -->
-<section class="bg-surface-container-high py-section-py-mobile md:py-section-py-desktop relative overflow-hidden">
-<div class="absolute inset-0 stone-texture opacity-10 pointer-events-none"></div>
-<div class="max-w-[1440px] mx-auto px-container-px text-center">
-<span class="font-label-allcaps text-label-allcaps text-charcoal/40 tracking-[0.5em] uppercase block mb-8">El Respaldo de un Gigante</span>
-<div class="flex flex-col md:flex-row items-center justify-center gap-stack-lg">
-<div class="max-w-md">
-<h2 class="font-display-hero text-headline-lg text-charcoal mb-4">32 Años de Excelencia</h2>
-<p class="font-body-reading text-body-reading text-tertiary">
-                        Grupo Industrial Graiman ha definido el estándar de calidad en materiales de construcción y diseño arquitectónico por más de tres décadas. Bouclé de Payró es la culminación de este legado.
+            <div class="flex justify-center">
+                <div class="elegant-divider max-w-[200px]"></div>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content: Form & Info Bento -->
+    <main class="py-section-py-mobile md:py-section-py-desktop px-container-px max-w-[1440px] mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-grid items-start">
+            <!-- Contact Form Section -->
+            <div class="lg:col-span-7 bg-pure-white p-6 md:p-16 rounded-xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 opacity-5 pointer-events-none">
+                    <span class="material-symbols-outlined text-[72px] md:text-[120px] text-charcoal">edit_note</span>
+                </div>
+                <h2 class="font-headline-lg text-headline-lg text-charcoal mb-4">Inicie el Diálogo</h2>
+                <p class="font-body-reading text-body-reading text-[#474746] mb-12">Complete el formulario y un asesor
+                    especializado se pondrá en contacto con usted en menos de 24 horas.</p>
+                <div class="w-full min-h-[400px] md:min-h-[522px] relative">
+                    <iframe src="https://links.inhauscorp.com/widget/form/BWYQ47y8LopUm6KH3JY0"
+                        style="width:100%;height:100%;border:none;border-radius:8px" id="inline-BWYQ47y8LopUm6KH3JY0"
+                        data-layout="{'id':'INLINE'}" data-trigger-type="alwaysShow" data-trigger-value=""
+                        data-activation-type="alwaysActivated" data-activation-value=""
+                        data-deactivation-type="neverDeactivate" data-deactivation-value="" data-form-name="Contacto"
+                        data-height="522" data-layout-iframe-id="inline-BWYQ47y8LopUm6KH3JY0"
+                        data-form-id="BWYQ47y8LopUm6KH3JY0" title="Contacto">
+                    </iframe>
+                    <script src="https://links.inhauscorp.com/js/form_embed.js"></script>
+                </div>
+            </div>
+            <!-- Info & Map Section -->
+            <div class="lg:col-span-5 space-y-gutter-grid">
+                <!-- Info Card -->
+                <div class="bg-charcoal p-10 md:p-12 text-pure-white rounded-xl stone-texture relative">
+                    <h3 class="font-headline-lg text-headline-lg text-warm-gold mb-8">Información de Venta</h3>
+                    <div class="space-y-10">
+                        <div class="flex gap-6">
+                            <div
+                                class="w-12 h-12 rounded-full border border-warm-gold/30 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-warm-gold">location_on</span>
+                            </div>
+                            <div>
+                                <p class="font-label-allcaps text-label-allcaps text-warm-gold mb-2 uppercase">Dirección
+                                </p>
+                                <p class="font-body-reading text-body-reading">Av. Manuel J. Calle 2-145,<br />Cuenca,
+                                    Ecuador</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <div
+                                class="w-12 h-12 rounded-full border border-warm-gold/30 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-warm-gold">call</span>
+                            </div>
+                            <div>
+                                <p class="font-label-allcaps text-label-allcaps text-warm-gold mb-2 uppercase">Atención
+                                    Directa</p>
+                                <p class="font-body-reading text-body-reading">+593 (07) 413-5800</p>
+                                <p class="font-body-reading text-body-reading text-pure-white/60 text-sm">Lun - Vie:
+                                    09:00 - 18:00</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <div
+                                class="w-12 h-12 rounded-full border border-warm-gold/30 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-warm-gold">mail</span>
+                            </div>
+                            <div>
+                                <p class="font-label-allcaps text-label-allcaps text-warm-gold mb-2 uppercase">Email</p>
+                                <p class="font-body-reading text-body-reading">contacto@boucle.com.ec</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Map Representation -->
+                <div class="relative h-[400px] bg-cream rounded-xl overflow-hidden group">
+                    <iframe
+                        class="w-full h-full border-0 grayscale opacity-80 hover:grayscale-0 transition-all duration-700 dark:invert-[90%] dark:hue-rotate-180 dark:grayscale-[0.7] dark:contrast-[1.2]"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3984.7234691244093!2d-79.0063162!3d-2.9011985!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91cd18174f4b1d6d%3A0xe54d5dcd2bb7cb56!2sAv.%20Manuel%20J.%20Calle%202-145%2C%20Cuenca!5e0!3m2!1sen!2sec!4v1717374000000!5m2!1sen!2sec"
+                        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                        aria-label="Mapa interactivo de Google de Bouclé de Payró en Cuenca, Ecuador">
+                    </iframe>
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div
+                            class="bg-charcoal text-pure-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-bounce">
+                            <span class="material-symbols-outlined text-warm-gold"
+                                style="font-variation-settings: 'FILL' 1;">location_on</span>
+                            <span class="font-label-allcaps text-label-allcaps uppercase">Nuestra Ubicación</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Trust Signals Section -->
+    <section class="bg-surface-container-high py-section-py-mobile md:py-section-py-desktop relative overflow-hidden">
+        <div class="absolute inset-0 stone-texture opacity-10 pointer-events-none"></div>
+        <div class="max-w-[1440px] mx-auto px-container-px text-center">
+            <span
+                class="font-label-allcaps text-label-allcaps text-charcoal/40 tracking-[0.5em] uppercase block mb-8">El
+                Respaldo de un Gigante</span>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-stack-lg">
+                <div class="max-w-md">
+                    <h2 class="font-display-hero text-headline-lg text-charcoal mb-4">32 Años de Excelencia</h2>
+                    <p class="font-body-reading text-body-reading text-tertiary">
+                        Grupo Industrial Graiman ha definido el estándar de calidad en materiales de construcción y
+                        diseño arquitectónico por más de tres décadas. Bouclé de Payró es la culminación de este legado.
                     </p>
-</div>
-<div class="w-px h-32 bg-warm-gold/20 hidden md:block"></div>
-<div class="grid grid-cols-2 gap-stack-lg">
-<div class="text-center">
-<span class="font-display-hero text-headline-lg text-warm-gold block">+30</span>
-<span class="font-label-allcaps text-label-allcaps uppercase text-charcoal/60">Proyectos</span>
-</div>
-<div class="text-center">
-<span class="font-display-hero text-headline-lg text-warm-gold block">100%</span>
-<span class="font-label-allcaps text-label-allcaps uppercase text-charcoal/60">Garantía</span>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section class="bg-charcoal text-pure-white py-section-py-mobile md:py-section-py-desktop px-container-px w-full">
-<div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-stack-lg">
-<div class="col-span-1 md:col-span-1">
-<div class="flex items-center gap-3 mb-6">
-  <img alt="Payró" class="h-9 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz">
-</div>
-<p class="font-body-reading text-body-reading text-cream/85 max-w-[200px]">La máxima expresión de Quiet Luxury en la ciudad.</p>
-</div>
-<div>
-<h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Navegación</h4>
-<ul class="space-y-4">
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/el-origen">El Origen</a></li>
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/el-proyecto">El Proyecto</a></li>
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/tipologias">Tipologías</a></li>
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/amenidades">Amenidades</a></li>
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/galeria">Galería</a></li>
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/ubicacion">Ubicación</a></li>
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="https://payro.ec/contacto">Contacto</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Recursos</h4>
-<ul class="space-y-4">
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="#">Brochure Digital</a></li>
-<li class=""><a class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block" href="#">Legal &amp; Privacidad</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Newsletter</h4>
-<p class="font-body-ui text-cream/40 mb-4">Suscríbete para recibir actualizaciones del proyecto.</p>
-<div class="relative">
-<input id="newsletter-email-shared" name="email" aria-label="Correo electrónico para boletín" class="w-full bg-transparent border-b border-warm-gold/30 py-2 font-body-ui text-pure-white focus:outline-none focus:border-warm-gold transition-colors" placeholder="email@ejemplo.com" type="email">
-<button class="absolute right-0 top-1 text-warm-gold">
-<span class="material-symbols-outlined">send</span>
-</button>
-</div>
-</div>
-</div>
-<div class="max-w-[1440px] mx-auto mt-20 pt-8 border-t border-warm-gold/20 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-<span class="font-label-technical text-[10px] text-cream/40 tracking-widest uppercase">© 2026 Payró.</span>
-<div class="flex space-x-6">
-<a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span class="material-symbols-outlined">public</span></a>
-<a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span class="material-symbols-outlined">photo_camera</span></a>
-<a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
-</div>
-</div>
-</section>
-<!-- Mobile Navigation Drawer -->
-<div id="mobile-menu-drawer" class="fixed inset-0 z-[100] bg-charcoal/98 backdrop-blur-2xl transition-all duration-500 ease-in-out transform translate-x-full flex flex-col justify-between p-8 md:hidden" style="background-color: rgba(43, 43, 43, 0.98);">
-  <div class="flex justify-between items-center pb-6 border-b border-white/10">
-    <a href="https://payro.ec/home" class="flex items-center gap-3">
-      <img alt="Payró" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz">
-    </a>
-    <button id="mobile-menu-close" class="text-pure-white hover:text-warm-gold transition-colors focus:outline-none">
-      <span class="material-symbols-outlined text-[32px]">close</span>
-    </button>
-  </div>
-  
-  <div class="flex flex-col space-y-6 my-auto">
-    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/home">Home</a>
-    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/el-origen">El Origen</a>
-    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/el-proyecto">El Proyecto</a>
-    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/tipologias">Tipologías</a>
-    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/amenidades">Amenidades</a>
-    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/galeria">Galería</a>
-    <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in" href="https://payro.ec/ubicacion">Ubicación</a>
-  </div>
+                </div>
+                <div class="w-px h-32 bg-warm-gold/20 hidden md:block"></div>
+                <div class="grid grid-cols-2 gap-stack-lg">
+                    <div class="text-center">
+                        <span class="font-display-hero text-headline-lg text-warm-gold block">+30</span>
+                        <span class="font-label-allcaps text-label-allcaps uppercase text-charcoal/60">Proyectos</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="font-display-hero text-headline-lg text-warm-gold block">100%</span>
+                        <span class="font-label-allcaps text-label-allcaps uppercase text-charcoal/60">Garantía</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="bg-charcoal text-pure-white py-section-py-mobile md:py-section-py-desktop px-container-px w-full">
+        <div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-stack-lg">
+            <div class="col-span-1 md:col-span-1">
+                <div class="flex items-center gap-3 mb-6">
+                    <img alt="Payró" class="h-9 w-auto object-contain"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz">
+                </div>
+                <p class="font-body-reading text-body-reading text-cream/85 max-w-[200px]">La máxima expresión de Quiet
+                    Luxury en la ciudad.</p>
+            </div>
+            <div>
+                <h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Navegación</h4>
+                <ul class="space-y-4">
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="https://payro.ec/el-origen">El Origen</a></li>
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="https://payro.ec/el-proyecto">El Proyecto</a></li>
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="https://payro.ec/tipologias">Tipologías</a></li>
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="https://payro.ec/amenidades">Amenidades</a></li>
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="https://payro.ec/galeria">Galería</a></li>
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="https://payro.ec/ubicacion">Ubicación</a></li>
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="https://payro.ec/contacto">Contacto</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Recursos</h4>
+                <ul class="space-y-4">
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="#">Brochure Digital</a></li>
+                    <li class=""><a
+                            class="font-body-reading text-cream/75 hover:text-warm-gold transition-all hover:translate-x-2 block"
+                            href="#">Legal &amp; Privacidad</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-label-allcaps text-label-allcaps text-warm-gold mb-6">Newsletter</h4>
+                <p class="font-body-ui text-cream/40 mb-4">Suscríbete para recibir actualizaciones del proyecto.</p>
+                <div class="relative">
+                    <input id="newsletter-email-shared" name="email" aria-label="Correo electrónico para boletín"
+                        class="w-full bg-transparent border-b border-warm-gold/30 py-2 font-body-ui text-pure-white focus:outline-none focus:border-warm-gold transition-colors"
+                        placeholder="email@ejemplo.com" type="email">
+                    <button class="absolute right-0 top-1 text-warm-gold">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div
+            class="max-w-[1440px] mx-auto mt-20 pt-8 border-t border-warm-gold/20 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <span class="font-label-technical text-[10px] text-cream/40 tracking-widest uppercase">© 2026 Payró.</span>
+            <div class="flex space-x-6">
+                <a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span
+                        class="material-symbols-outlined">public</span></a>
+                <a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span
+                        class="material-symbols-outlined">photo_camera</span></a>
+                <a class="text-warm-gold/60 hover:text-warm-gold transition-colors" href="#"><span
+                        class="material-symbols-outlined">alternate_email</span></a>
+            </div>
+        </div>
+    </section>
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu-drawer"
+        class="fixed inset-0 z-[100] bg-charcoal/98 backdrop-blur-2xl transition-all duration-500 ease-in-out transform translate-x-full flex flex-col justify-between p-8 md:hidden"
+        style="background-color: rgba(43, 43, 43, 0.98);">
+        <div class="flex justify-between items-center pb-6 border-b border-white/10">
+            <a href="https://payro.ec/home" class="flex items-center gap-3">
+                <img alt="Payró" class="h-6 w-auto object-contain"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYVaGI6wxXDi6XVRpvgSAHVhfeaU-8CrRp43YoP1tnHuDZ_z6jr3gQdDhyI8q19-mOg3A5Up9gZAL7cRD2yuk21GUePU3QP3a_JisId4eHztDg8ywtKoUCRs-K_93mX16HY-eAGhgTkS53sH-jnJYatYSAwHlE3Vu0IsZ4NPzQB05OMtjZeAeO9ucCYGqPAi7-gAwyncLF2aOxmgClVAwS7E6M8lUCLUwQb4JTKuSVAudAN-CAmMMSYvDmI8X9q0jRC2FZHmrCIhfz">
+            </a>
+            <button id="mobile-menu-close"
+                class="text-pure-white hover:text-warm-gold transition-colors focus:outline-none">
+                <span class="material-symbols-outlined text-[32px]">close</span>
+            </button>
+        </div>
 
-  <div class="pt-6 border-t border-white/10 flex flex-col space-y-4">
-    <a href="https://payro.ec/contacto" class="bg-warm-gold text-charcoal w-full py-4 rounded-full text-center text-xs font-label-allcaps uppercase tracking-wider hover:bg-white hover:text-charcoal transition-all block">Contacto</a>
-    <span class="font-label-technical text-[9px] text-pure-white/40 tracking-widest uppercase text-center">© 2026 Bouclé de Payró</span>
-  </div>
-</div>
+        <div class="flex flex-col space-y-6 my-auto">
+            <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in"
+                href="https://payro.ec/home">Home</a>
+            <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in"
+                href="https://payro.ec/el-origen">El Origen</a>
+            <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in"
+                href="https://payro.ec/el-proyecto">El Proyecto</a>
+            <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in"
+                href="https://payro.ec/tipologias">Tipologías</a>
+            <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in"
+                href="https://payro.ec/amenidades">Amenidades</a>
+            <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in"
+                href="https://payro.ec/galeria">Galería</a>
+            <a class="text-2xl font-display-hero text-pure-white/90 hover:text-warm-gold transition-colors animate-fade-in"
+                href="https://payro.ec/ubicacion">Ubicación</a>
+        </div>
 
-<script>
+        <div class="pt-6 border-t border-white/10 flex flex-col space-y-4">
+            <a href="https://payro.ec/contacto"
+                class="bg-warm-gold text-charcoal w-full py-4 rounded-full text-center text-xs font-label-allcaps uppercase tracking-wider hover:bg-white hover:text-charcoal transition-all block">Contacto</a>
+            <span class="font-label-technical text-[9px] text-pure-white/40 tracking-widest uppercase text-center">©
+                2026 Bouclé de Payró</span>
+        </div>
+    </div>
+
+    <script>
         // Mobile Menu Toggler
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenuClose = document.getElementById('mobile-menu-close');
@@ -397,4 +495,6 @@
             });
         }
     </script>
-</body></html>
+</body>
+
+</html>
