@@ -73,7 +73,7 @@ app.post("/ghl-webhook", async (req, res) => {
 
     // Generate unique Ticket ID
     const ticketId = await createUniqueTicketId();
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticketId}`;
+    const qrUrl = `https://us-central1-inhaus-brain-full-prod.cloudfunctions.net/api/qrcodes/${ticketId}.png`;
 
     // Construct Guest Details
     const firstName = body.first_name || body.firstName || "";
@@ -123,7 +123,10 @@ app.post("/ghl-webhook", async (req, res) => {
     const combinedRaw = rawCompanions.map(c => c.toString().trim()).join(", ").trim();
     if (combinedRaw) {
       if (/^\d+$/.test(combinedRaw)) {
-        extraGuestsCount = parseInt(combinedRaw, 10) || 0;
+        const val = parseInt(combinedRaw, 10) || 0;
+        if (val > 1) {
+          extraGuestsCount = val - 1; // subtract main guest
+        }
       } else {
         // Normalize separating by " y " or " Y " to commas
         const normalized = combinedRaw.replace(/\s+y\s+/gi, ", ");
@@ -136,8 +139,9 @@ app.post("/ghl-webhook", async (req, res) => {
         companionNames = companionNames.filter(name => {
           if (/^\d+$/.test(name)) {
             const val = parseInt(name, 10) || 0;
-            if (val > extraGuestsCount) {
-              extraGuestsCount = val;
+            const compVal = val > 1 ? val - 1 : 0; // subtract main guest
+            if (compVal > extraGuestsCount) {
+              extraGuestsCount = compVal;
             }
             return false;
           }
@@ -156,9 +160,12 @@ app.post("/ghl-webhook", async (req, res) => {
       body.cuntos_invitados_aprox_seran || 
       "0";
     const numInvitados = parseInt(numInvitadosRaw, 10) || 0;
+    
+    // Since this number includes the main guest, companion count is numInvitados - 1
+    const companionsCountFromNum = numInvitados > 1 ? numInvitados - 1 : 0;
 
     // Determine final count of companion tickets
-    const finalCount = Math.max(numInvitados, extraGuestsCount, companionNames.length);
+    const finalCount = Math.max(companionsCountFromNum, extraGuestsCount, companionNames.length);
     const finalCompanions = [];
     for (let i = 0; i < finalCount; i++) {
       if (i < companionNames.length) {
@@ -185,6 +192,7 @@ app.post("/ghl-webhook", async (req, res) => {
         checkedInAt: null,
         isCompanion: true,
         principalName: guestName,
+        parentTicketId: ticketId,
       };
 
       await db.collection("tickets").doc(compTicketId).set(compTicketData);
@@ -200,18 +208,10 @@ app.post("/ghl-webhook", async (req, res) => {
     let qrUrlValue = qrUrl;
 
     if (companionTickets.length > 0) {
-      // Create a formatted list of names and URLs for the message
-      const qrList = [];
-      qrList.push(`🎟️ ${guestName}: ${qrUrl}`);
-      
       const ticketIds = [ticketId];
       companionTickets.forEach(comp => {
-        const compQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${comp.id}`;
-        qrList.push(`🎟️ ${comp.guestName}: ${compQrUrl}`);
         ticketIds.push(comp.id);
       });
-
-      qrUrlValue = qrList.join("\n");
       ticketIdValue = ticketIds.join(", ");
     }
 
@@ -256,6 +256,96 @@ app.post("/ghl-webhook", async (req, res) => {
   } catch (error) {
     console.error("Error processing webhook:", error);
     return res.status(500).json({ error: "Internal Server Error", message: error.message });
+  }
+});
+
+// Route: Dynamic QR image generation (combines main and companion QR codes side-by-side)
+app.get("/qrcodes/:ticketId.png", async (req, res) => {
+  try {
+    const Jimp = require("jimp");
+    const { ticketId } = req.params;
+    
+    // Fetch main ticket
+    const ticketDoc = await db.collection("tickets").doc(ticketId).get();
+    if (!ticketDoc.exists) {
+      return res.status(404).send("Ticket not found");
+    }
+    const mainTicket = ticketDoc.data();
+    
+    // Find parent principal ticket to load the correct companions group
+    let principalTicket = mainTicket;
+    if (mainTicket.isCompanion && mainTicket.parentTicketId) {
+      const parentDoc = await db.collection("tickets").doc(mainTicket.parentTicketId).get();
+      if (parentDoc.exists) {
+        principalTicket = parentDoc.data();
+      }
+    }
+    const parentId = principalTicket.id;
+
+    // Fetch companions (same parentTicketId)
+    const companions = [];
+    const snap = await db.collection("tickets")
+      .where("parentTicketId", "==", parentId)
+      .get();
+    
+    snap.forEach(doc => {
+      const data = doc.data();
+      if (data.id !== principalTicket.id && data.status !== "cancelled") {
+        companions.push(data);
+      }
+    });
+    // Sort companions by issuedAt
+    companions.sort((a, b) => (a.issuedAt || "").localeCompare(b.issuedAt || ""));
+
+    const allTickets = [principalTicket, ...companions];
+    const N = allTickets.length;
+    const qrWidth = 180;
+    const qrHeight = 180;
+    const canvasWidth = 350;
+    const blockHeight = 360;
+    const canvasHeight = blockHeight * N;
+
+    // Create white canvas (Jimp white color is 0xFFFFFFFF)
+    const canvas = new Jimp(canvasWidth, canvasHeight, 0xFFFFFFFF);
+    const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+
+    for (let i = 0; i < N; i++) {
+      const t = allTickets[i];
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${t.id}`;
+      
+      const qrImage = await Jimp.read(qrCodeUrl);
+      const yOffset = i * blockHeight;
+      
+      // Paste QR code centered horizontally (85, yOffset + 95)
+      canvas.composite(qrImage, 85, yOffset + 95);
+      
+      // Print name centered
+      let displayName = t.guestName || "Invitado";
+      if (displayName.length > 28) {
+        displayName = displayName.substring(0, 25) + "...";
+      }
+      
+      const textWidth = Jimp.measureText(font, displayName);
+      const xText = Math.max(0, (canvasWidth - textWidth) / 2);
+      
+      canvas.print(font, xText, yOffset + 40, displayName);
+      
+      // Horizontal Divider
+      if (N > 1 && i < N - 1) {
+        const dividerY = (i + 1) * blockHeight - 15;
+        for (let x = 40; x < canvasWidth - 40; x++) {
+          canvas.setPixelColor(0xEEEEEEFF, x, dividerY);
+        }
+      }
+    }
+
+    const buffer = await canvas.getBufferAsync(Jimp.MIME_PNG);
+    res.type("image/png");
+    res.set("Cache-Control", "public, max-age=86400"); // cache for 1 day
+    return res.send(buffer);
+  } catch (error) {
+    console.error("Error generating combined QR image:", error);
+    return res.status(500).send("Error generating QR code image");
   }
 });
 
