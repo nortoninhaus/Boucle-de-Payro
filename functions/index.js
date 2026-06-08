@@ -263,6 +263,7 @@ app.post("/ghl-webhook", async (req, res) => {
 app.get("/qrcodes/:ticketId.png", async (req, res) => {
   try {
     const Jimp = require("jimp");
+    const path = require("path");
     const { ticketId } = req.params;
     
     // Fetch main ticket
@@ -299,15 +300,40 @@ app.get("/qrcodes/:ticketId.png", async (req, res) => {
 
     const allTickets = [principalTicket, ...companions];
     const N = allTickets.length;
-    const qrWidth = 180;
-    const qrHeight = 180;
+    
     const canvasWidth = 350;
-    const blockHeight = 360;
+    const blockHeight = 400;
     const canvasHeight = blockHeight * N;
 
-    // Create white canvas (Jimp white color is 0xFFFFFFFF)
-    const canvas = new Jimp(canvasWidth, canvasHeight, 0xFFFFFFFF);
-    const font = await Jimp.loadFont(Jimp.FONT_SANS_16_BLACK);
+    // Create canvas (dark background: 0x121212FF)
+    const canvas = new Jimp(canvasWidth, canvasHeight, 0x121212FF);
+
+    // Load local white fonts
+    const fontPath16 = path.join(__dirname, "node_modules", "jimp", "fonts", "open-sans", "open-sans-16-white", "open-sans-16-white.fnt");
+    const fontPath8 = path.join(__dirname, "node_modules", "jimp", "fonts", "open-sans", "open-sans-8-white", "open-sans-8-white.fnt");
+    
+    const font16 = await Jimp.loadFont(fontPath16);
+    const font8 = await Jimp.loadFont(fontPath8);
+
+    function drawHorizontalLine(image, xStart, xEnd, y, color) {
+      for (let x = xStart; x <= xEnd; x++) {
+        image.setPixelColor(color, x, y);
+      }
+    }
+
+    function drawVerticalLine(image, x, yStart, yEnd, color) {
+      for (let y = yStart; y <= yEnd; y++) {
+        image.setPixelColor(color, x, y);
+      }
+    }
+
+    function drawFilledRect(image, xStart, yStart, width, height, color) {
+      for (let y = yStart; y < yStart + height; y++) {
+        for (let x = xStart; x < xStart + width; x++) {
+          image.setPixelColor(color, x, y);
+        }
+      }
+    }
 
     for (let i = 0; i < N; i++) {
       const t = allTickets[i];
@@ -316,27 +342,61 @@ app.get("/qrcodes/:ticketId.png", async (req, res) => {
       const qrImage = await Jimp.read(qrCodeUrl);
       const yOffset = i * blockHeight;
       
-      // Paste QR code centered horizontally (85, yOffset + 95)
-      canvas.composite(qrImage, 85, yOffset + 95);
-      
-      // Print name centered
+      // Card dimensions
+      const cardX = 20;
+      const cardY = yOffset + 20;
+      const cardW = 310;
+      const cardH = 360;
+
+      // Draw premium ticket card background (charcoal surface: 0x222222FF)
+      drawFilledRect(canvas, cardX, cardY, cardW, cardH, 0x222222FF);
+
+      // Draw thin elegant border (Gold: 0xA68B59FF)
+      drawHorizontalLine(canvas, cardX, cardX + cardW - 1, cardY, 0xA68B59FF);
+      drawHorizontalLine(canvas, cardX, cardX + cardW - 1, cardY + cardH - 1, 0xA68B59FF);
+      drawVerticalLine(canvas, cardX, cardY, cardY + cardH - 1, 0xA68B59FF);
+      drawVerticalLine(canvas, cardX + cardW - 1, cardY, cardY + cardH - 1, 0xA68B59FF);
+
+      // Print Header: B O U C L É   D E   P A Y R Ó
+      const title = "B O U C L É   D E   P A Y R Ó";
+      const titleWidth = Jimp.measureText(font16, title);
+      const xTitle = Math.max(0, (canvasWidth - titleWidth) / 2);
+      canvas.print(font16, xTitle, yOffset + 40, title);
+
+      // Print Guest Name
       let displayName = t.guestName || "Invitado";
-      if (displayName.length > 28) {
-        displayName = displayName.substring(0, 25) + "...";
+      if (displayName.length > 25) {
+        displayName = displayName.substring(0, 22) + "...";
       }
+      const nameWidth = Jimp.measureText(font16, displayName);
+      const xName = Math.max(0, (canvasWidth - nameWidth) / 2);
+      canvas.print(font16, xName, yOffset + 70, displayName);
       
-      const textWidth = Jimp.measureText(font, displayName);
-      const xText = Math.max(0, (canvasWidth - textWidth) / 2);
-      
-      canvas.print(font, xText, yOffset + 40, displayName);
-      
-      // Horizontal Divider
-      if (N > 1 && i < N - 1) {
-        const dividerY = (i + 1) * blockHeight - 15;
-        for (let x = 40; x < canvasWidth - 40; x++) {
-          canvas.setPixelColor(0xEEEEEEFF, x, dividerY);
-        }
-      }
+      // Paste QR code centered (85, yOffset + 105)
+      canvas.composite(qrImage, 85, yOffset + 105);
+
+      // Frame the QR code with gold border
+      drawHorizontalLine(canvas, 84, 265, yOffset + 104, 0xA68B59FF);
+      drawHorizontalLine(canvas, 84, 265, yOffset + 285, 0xA68B59FF);
+      drawVerticalLine(canvas, 84, yOffset + 104, yOffset + 285, 0xA68B59FF);
+      drawVerticalLine(canvas, 265, yOffset + 104, yOffset + 285, 0xA68B59FF);
+
+      // Print Ticket ID
+      const idWidth = Jimp.measureText(font16, t.id);
+      const xId = Math.max(0, (canvasWidth - idWidth) / 2);
+      canvas.print(font16, xId, yOffset + 300, t.id);
+
+      // Print Access Pass Type
+      const accessText = t.isCompanion ? "PASE DE ACOMPAÑANTE" : "PASE DE INVITADO PRINCIPAL";
+      const accessWidth = Jimp.measureText(font8, accessText);
+      const xAccess = Math.max(0, (canvasWidth - accessWidth) / 2);
+      canvas.print(font8, xAccess, yOffset + 325, accessText);
+
+      // Print Event Details
+      const footerLabel = "EVENTO DE LANZAMIENTO • CUENCA";
+      const footerLabelWidth = Jimp.measureText(font8, footerLabel);
+      const xFooterLabel = Math.max(0, (canvasWidth - footerLabelWidth) / 2);
+      canvas.print(font8, xFooterLabel, yOffset + 345, footerLabel);
     }
 
     const buffer = await canvas.getBufferAsync(Jimp.MIME_PNG);
