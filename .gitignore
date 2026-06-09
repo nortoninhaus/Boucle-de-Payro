@@ -6,3 +6,12 @@ dist/
 .gemini/
 .firebase/
 *debug.log
+
+# Flutter / Dart
+**/build/
+**/.dart_tool/
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/ios/Flutter/
+**/android/.gradle/
