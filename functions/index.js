@@ -85,7 +85,8 @@ app.post("/ghl-webhook", async (req, res) => {
     const guestPhone = body.phone || body.guestPhone || "";
     const company = body.company_name || body.company || "";
 
-    // Store in Firestore
+    // Store in Firestore using Write Batch
+    const batch = db.batch();
     const ticketRef = db.collection("tickets").doc(ticketId);
     const ticketData = {
       id: ticketId,
@@ -99,8 +100,8 @@ app.post("/ghl-webhook", async (req, res) => {
       checkedInAt: null,
     };
 
-    await ticketRef.set(ticketData);
-    console.log(`Ticket ${ticketId} created in Firestore for GHL Contact ${contactId}`);
+    batch.set(ticketRef, ticketData);
+    console.log(`Ticket ${ticketId} staged in batch for GHL Contact ${contactId}`);
 
     // Check for companion guests using existing fields in GHL
     const companionTickets = [];
@@ -197,10 +198,15 @@ app.post("/ghl-webhook", async (req, res) => {
         parentTicketId: ticketId,
       };
 
-      await db.collection("tickets").doc(compTicketId).set(compTicketData);
+      const compTicketRef = db.collection("tickets").doc(compTicketId);
+      batch.set(compTicketRef, compTicketData);
       companionTickets.push(compTicketData);
-      console.log(`Companion ticket ${compTicketId} created for ${compName}`);
+      console.log(`Companion ticket ${compTicketId} staged in batch for ${compName}`);
     }
+
+    // Commit all tickets atomically
+    await batch.commit();
+    console.log(`Batch commit successful: ${companionTickets.length + 1} tickets created`);
 
     const ticketIdKey = process.env.GHL_TICKET_ID_KEY || "boucl_ticket_id";
     const qrUrlKey = process.env.GHL_QR_URL_KEY || "boucl_qr_code_url";
@@ -262,11 +268,31 @@ app.post("/ghl-webhook", async (req, res) => {
 });
 
 // Route: Dynamic QR image generation (combines main and companion QR codes side-by-side)
+// Route: Dynamic QR image generation (combines main and companion QR codes side-by-side)
 app.get("/qrcodes/:ticketId.png", async (req, res) => {
   try {
+    const { ticketId } = req.params;
+
+    // Check Firebase Storage cache first
+    const bucket = admin.storage().bucket();
+    const fileRef = bucket.file(`qrcodes/${ticketId}.png`);
+    
+    try {
+      const [exists] = await fileRef.exists();
+      if (exists) {
+        console.log(`Serving cached QR code from Storage for ticket: ${ticketId}`);
+        res.type("image/png");
+        res.set("Cache-Control", "public, max-age=86400");
+        fileRef.createReadStream().pipe(res);
+        return;
+      }
+    } catch (storageError) {
+      console.error("Storage cache check failed, falling back to generation:", storageError.message);
+    }
+
     const Jimp = require("jimp");
     const path = require("path");
-    const { ticketId } = req.params;
+    const QRCode = require("qrcode");
     
     // Fetch main ticket
     const ticketDoc = await db.collection("tickets").doc(ticketId).get();
@@ -343,9 +369,9 @@ app.get("/qrcodes/:ticketId.png", async (req, res) => {
 
     for (let i = 0; i < N; i++) {
       const t = allTickets[i];
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${t.id}`;
-      
-      const qrImage = await Jimp.read(qrCodeUrl);
+      // Generate QR code locally in memory as PNG buffer
+      const qrBuffer = await QRCode.toBuffer(t.id, { width: 360, margin: 1 });
+      const qrImage = await Jimp.read(qrBuffer);
       const yOffset = i * blockHeight;
       
       // Card dimensions
@@ -406,6 +432,20 @@ app.get("/qrcodes/:ticketId.png", async (req, res) => {
     }
 
     const buffer = await canvas.getBufferAsync(Jimp.MIME_PNG);
+    
+    // Save to Storage cache
+    try {
+      await fileRef.save(buffer, {
+        contentType: "image/png",
+        metadata: {
+          cacheControl: "public, max-age=86400",
+        },
+      });
+      console.log(`Saved generated QR code image to Storage for ticket: ${ticketId}`);
+    } catch (saveError) {
+      console.error("Failed to save generated QR code image to Storage:", saveError.message);
+    }
+
     res.type("image/png");
     res.set("Cache-Control", "public, max-age=86400"); // cache for 1 day
     return res.send(buffer);
@@ -452,7 +492,7 @@ app.post("/guests", verifyPasscode, async (req, res) => {
     }
 
     const ticketId = await createUniqueTicketId();
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticketId}`;
+    const qrUrl = `https://us-central1-inhaus-brain-full-prod.cloudfunctions.net/api/qrcodes/${ticketId}.png`;
 
     let contactId = null;
     const accessToken = process.env.GHL_ACCESS_TOKEN;
@@ -578,56 +618,76 @@ app.post("/checkIn", verifyPasscode, async (req, res) => {
 
   try {
     const ticketRef = db.collection("tickets").doc(ticketId);
-    const ticketDoc = await ticketRef.get();
 
-    if (!ticketDoc.exists) {
-      return res.status(444).json({
-        status: "NOT_FOUND",
-        error: "Invalid ticket ID. Ticket does not exist.",
+    const transactionResult = await db.runTransaction(async (transaction) => {
+      const ticketDoc = await transaction.get(ticketRef);
+      if (!ticketDoc.exists) {
+        return {
+          errorStatus: 444,
+          data: {
+            status: "NOT_FOUND",
+            error: "Invalid ticket ID. Ticket does not exist.",
+          }
+        };
+      }
+
+      const ticket = ticketDoc.data();
+
+      if (ticket.status === "checked_in") {
+        return {
+          errorStatus: 200,
+          data: {
+            status: "ALREADY_CHECKED_IN",
+            message: "Guest is already checked in",
+            checkedInAt: ticket.checkedInAt,
+            guest: ticket,
+          }
+        };
+      }
+
+      const checkedInAt = new Date().toISOString();
+      transaction.update(ticketRef, {
+        status: "checked_in",
+        checkedInAt,
       });
-    }
 
-    const ticket = ticketDoc.data();
-
-    if (ticket.status === "checked_in") {
-      return res.status(200).json({
-        status: "ALREADY_CHECKED_IN",
-        message: "Guest is already checked in",
-        checkedInAt: ticket.checkedInAt,
-        guest: ticket,
-      });
-    }
-
-    const checkedInAt = new Date().toISOString();
-    await ticketRef.update({
-      status: "checked_in",
-      checkedInAt,
+      return {
+        success: true,
+        ticket,
+        checkedInAt
+      };
     });
 
-    // Update GHL custom field if possible
+    if (!transactionResult.success) {
+      return res.status(transactionResult.errorStatus).json(transactionResult.data);
+    }
+
+    const { ticket, checkedInAt } = transactionResult;
+    const updatedTicket = { ...ticket, status: "checked_in", checkedInAt };
+
+    // Update GHL custom field asynchronously (do not await, to keep response sub-100ms)
     const accessToken = process.env.GHL_ACCESS_TOKEN;
     const checkedInKey = process.env.GHL_CHECKED_IN_KEY || "boucle_checked_in";
     if (accessToken && ticket.ghlContactId) {
-      try {
-        const ghlUrl = `https://services.leadconnectorhq.com/contacts/${ticket.ghlContactId}`;
-        const ghlPayload = {
-          customFields: [{ key: checkedInKey, value: "Yes" }],
-        };
+      const ghlUrl = `https://services.leadconnectorhq.com/contacts/${ticket.ghlContactId}`;
+      const ghlPayload = {
+        customFields: [{ key: checkedInKey, value: "Yes" }],
+      };
 
-        await axios.put(ghlUrl, ghlPayload, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            Version: "2023-02-21",
-            "Content-Type": "application/json",
-          },
-        });
-        console.log(`Updated GHL contact ${ticket.ghlContactId} checked-in status`);
-      } catch (ghlError) {
-        console.error("Failed to update GHL checked-in status:", ghlError.response?.data || ghlError.message);
-      }
+      axios.put(ghlUrl, ghlPayload, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Version: "2023-02-21",
+          "Content-Type": "application/json",
+        },
+      })
+      .then(() => {
+        console.log(`Updated GHL contact ${ticket.ghlContactId} checked-in status asynchronously`);
+      })
+      .catch((ghlError) => {
+        console.error("Failed to update GHL checked-in status in background:", ghlError.response?.data || ghlError.message);
+      });
     }
-
-    const updatedTicket = { ...ticket, status: "checked_in", checkedInAt };
 
     return res.status(200).json({
       status: "SUCCESS",
