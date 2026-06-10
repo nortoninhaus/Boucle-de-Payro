@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -313,11 +314,96 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _statusFilter = 'all'; // 'all', 'checked_in', 'issued'
 
+  Timer? _syncTimer;
+
   @override
   void initState() {
     super.initState();
     _fetchGuestData();
     _searchController.addListener(_onSearchOrFilterChanged);
+    _startSyncTimer();
+  }
+
+  void _startSyncTimer() {
+    _syncTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      _syncOfflineQueue();
+    });
+  }
+
+  @override
+  void dispose() {
+    _syncTimer?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _syncOfflineQueue() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final queue = prefs.getStringList('staff_offline_checkins') ?? [];
+      if (queue.isEmpty) return;
+
+      debugPrint('Syncing ${queue.length} offline check-ins...');
+      final List<String> successfullySynced = [];
+
+      for (final ticketId in queue) {
+        try {
+          final response = await http.post(
+            Uri.parse('${getApiBaseUrl()}/checkIn'),
+            headers: {
+              'Authorization': 'Bearer ${widget.passcode}',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({'ticketId': ticketId}),
+          );
+
+          if (response.statusCode == 200 || response.statusCode == 444) {
+            successfullySynced.add(ticketId);
+          }
+        } catch (e) {
+          debugPrint('Failed to sync ticket $ticketId: $e');
+          break; // Stop syncing rest of queue if network is still down
+        }
+      }
+
+      if (successfullySynced.isNotEmpty) {
+        final updatedQueue = prefs.getStringList('staff_offline_checkins') ?? [];
+        updatedQueue.removeWhere((id) => successfullySynced.contains(id));
+        await prefs.setStringList('staff_offline_checkins', updatedQueue);
+        
+        _showToast('Sincronizados ${successfullySynced.length} registros offline');
+        _fetchGuestDataSilently();
+      }
+    } catch (err) {
+      debugPrint('Offline sync error: $err');
+    }
+  }
+
+  Future<void> _fetchGuestDataSilently() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${getApiBaseUrl()}/guests'),
+        headers: {
+          'Authorization': 'Bearer ${widget.passcode}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> list = data['guests'] ?? [];
+        if (mounted) {
+          setState(() {
+            _guests = list;
+            _totalGuests = list.length;
+            _checkedIn = list.where((g) => g['status'] == 'checked_in').length;
+          });
+          _onSearchOrFilterChanged();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error silent fetching: $e');
+    }
   }
 
   Future<void> _fetchGuestData() async {
@@ -326,6 +412,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _isLoading = true;
       });
     }
+
+    await _syncOfflineQueue();
 
     try {
       final response = await http.get(
@@ -856,7 +944,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             label: Text('ESCANEAR TICKET', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                             onPressed: () async {
                               final result = await Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => ScannerScreen(passcode: widget.passcode)),
+                                MaterialPageRoute(builder: (_) => ScannerScreen(passcode: widget.passcode, guests: _guests)),
                               );
                               if (result == true) _fetchGuestData();
                             },
@@ -1028,7 +1116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             label: Text('ESCANEAR QR', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                             onPressed: () async {
                               final result = await Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => ScannerScreen(passcode: widget.passcode)),
+                                MaterialPageRoute(builder: (_) => ScannerScreen(passcode: widget.passcode, guests: _guests)),
                               );
                               if (result == true) _fetchGuestData();
                             },
@@ -1240,7 +1328,8 @@ class TimelineLineChartPainter extends CustomPainter {
 
 class ScannerScreen extends StatefulWidget {
   final String passcode;
-  const ScannerScreen({super.key, required this.passcode});
+  final List<dynamic> guests;
+  const ScannerScreen({super.key, required this.passcode, required this.guests});
 
   @override
   State<ScannerScreen> createState() => _ScannerScreenState();
@@ -1327,8 +1416,60 @@ class _ScannerScreenState extends State<ScannerScreen> {
       }
     } catch (e) {
       if (mounted) Navigator.of(context).pop(); // Close loading
-      playErrorSound();
-      _showErrorBottomSheet('ERROR DE CONEXIÓN', 'Compruebe su señal de internet.');
+      
+      // Attempt offline check-in using local guest list
+      final localGuestIdx = widget.guests.indexWhere((g) => g['id'] == ticketId);
+      if (localGuestIdx != -1) {
+        final guest = widget.guests[localGuestIdx];
+        final isChecked = guest['status'] == 'checked_in';
+
+        if (isChecked) {
+          playWarningSound();
+          _showCheckInResultBottomSheet(
+            title: 'YA REGISTRADO (OFFLINE)',
+            subtitle: 'Ticket escaneado previamente (Sin conexión)',
+            color: const Color(0xFFC69C59),
+            icon: Icons.warning_amber_outlined,
+            guest: guest,
+            additionalInfo: guest['checkedInAt'] != null 
+                ? 'Ingreso original: ${formatTimestamp(guest['checkedInAt'])}' 
+                : 'Ingreso original: Desconocido',
+          );
+        } else {
+          // Perform local check-in
+          guest['status'] = 'checked_in';
+          final checkedInAt = DateTime.now().toUtc().toIso8601String();
+          guest['checkedInAt'] = checkedInAt;
+
+          // Save to shared_preferences offline queue
+          try {
+            SharedPreferences.getInstance().then((prefs) {
+              final queue = prefs.getStringList('staff_offline_checkins') ?? [];
+              if (!queue.contains(ticketId)) {
+                queue.add(ticketId);
+                prefs.setStringList('staff_offline_checkins', queue);
+              }
+            });
+          } catch (storageError) {
+            debugPrint('Failed to save to offline queue: $storageError');
+          }
+
+          playSuccessSound();
+          _showCheckInResultBottomSheet(
+            title: 'ACCESO OFFLINE PERMITIDO',
+            subtitle: 'Bienvenido a Bouclé (Registro Offline)',
+            color: const Color(0xFF48645C),
+            icon: Icons.offline_pin_outlined,
+            guest: guest,
+          );
+        }
+      } else {
+        playErrorSound();
+        _showErrorBottomSheet(
+          'ERROR DE CONEXIÓN',
+          'Compruebe su señal de internet.\n(El código no se pudo validar localmente)',
+        );
+      }
     }
   }
 
@@ -1649,8 +1790,45 @@ class _GuestListScreenState extends State<GuestListScreen> {
       }
     } catch (e) {
       if (mounted) Navigator.of(context).pop(); // Close loading
-      playErrorSound();
-      _showToast('Error de conexión');
+      
+      // Attempt offline check-in locally
+      final idx = _allGuests.indexWhere((g) => g['id'] == ticketId);
+      if (idx != -1) {
+        final guest = _allGuests[idx];
+        final isChecked = guest['status'] == 'checked_in';
+        
+        if (isChecked) {
+          playWarningSound();
+          _showToast('Ya registrado previamente');
+        } else {
+          // Perform local check-in
+          setState(() {
+            _needsRefresh = true;
+            guest['status'] = 'checked_in';
+            guest['checkedInAt'] = DateTime.now().toUtc().toIso8601String();
+            _onSearchChanged(); // Re-filter
+          });
+
+          // Save to shared_preferences offline queue
+          try {
+            SharedPreferences.getInstance().then((prefs) {
+              final queue = prefs.getStringList('staff_offline_checkins') ?? [];
+              if (!queue.contains(ticketId)) {
+                queue.add(ticketId);
+                prefs.setStringList('staff_offline_checkins', queue);
+              }
+            });
+          } catch (storageError) {
+            debugPrint('Failed to save to offline queue: $storageError');
+          }
+
+          playSuccessSound();
+          _showToast('Registro Offline Exitoso');
+        }
+      } else {
+        playErrorSound();
+        _showToast('Error de conexión');
+      }
     }
   }
 
