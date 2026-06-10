@@ -54,6 +54,7 @@ jobs:
           copy_page "06_galeria" "galeria"
           copy_page "07_ubicacion" "ubicacion"
           copy_page "08_contacto" "contacto"
+          copy_page "09_legal" "legal"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
